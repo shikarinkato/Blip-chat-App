@@ -19,7 +19,7 @@ const Home = () => {
   const [localOnline, setLocalOnline] = useState([]);
 
   const initializeSocket = () => {
-    socket.current = io("http://localhost:3000", { query: { token } });
+    socket.current = io(`${serverUrl}`, { query: { token } });
     // Setup listeners
     socket.current.on("connect", () => {
       console.log("Socket connected");
@@ -61,7 +61,6 @@ const Home = () => {
 
   useEffect(() => {
     console.log("Useffect called Again");
-    socket.current = io(`${serverUrl}`, { query: { token } });
 
     const asyncInit = async () => {
       // Validate Auth
