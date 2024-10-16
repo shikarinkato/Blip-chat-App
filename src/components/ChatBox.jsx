@@ -279,10 +279,13 @@ const ChatBox = () => {
     e.stopPropagation();
   }
 
-  let isFav = friends.some(
-    (fr) => fr.friend_id === anotherUser._id && fr.isFavourite
-  );
+  let isFav;
 
+  if (friends && friends.length > 0) {
+    isFav = friends.some(
+      (fr) => fr.friend_id === anotherUser._id && fr.isFavourite
+    );
+  }
 
   return (
     <div
