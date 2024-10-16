@@ -28,7 +28,7 @@ const LoginAndSignup = ({ Children }) => {
     if (innerWidth > 1280) {
       if (isLogin) {
         setCurrWidth(30);
-        setCurrHeight(25);
+        setCurrHeight(30);
       } else {
         setCurrWidth(85);
         setCurrHeight(100);

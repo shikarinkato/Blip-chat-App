@@ -3,22 +3,15 @@ import React, { lazy, Suspense, useContext, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import Loader from "../components/Loader";
-import { Context } from "../context/StateProvider";
+import { Context, serverUrl } from "../context/StateProvider";
 
 const Home = () => {
   const SideBar = lazy(() => import("../components/SideBar"));
   const BG = lazy(() => import("../components/BG"));
   const toast = useToast();
 
-  let {
-    setIsAuthenticated,
-    friends,
-    getAllFriends,
-    getProfile,
-    setOnlineUsers,
-    socket,
-    onlineUsers,
-  } = useContext(Context);
+  let { friends, getAllFriends, getProfile, setOnlineUsers, socket } =
+    useContext(Context);
 
   const navigate = useNavigate();
 
@@ -68,7 +61,7 @@ const Home = () => {
 
   useEffect(() => {
     console.log("Useffect called Again");
-    socket.current = io("http://localhost:3000", { query: { token } });
+    socket.current = io(`${serverUrl}`, { query: { token } });
 
     const asyncInit = async () => {
       // Validate Auth
@@ -115,7 +108,7 @@ const Home = () => {
 
   useEffect(() => {
     const online = async () => {
-      if (friends.length > 0) {
+      if (friends && friends.length > 0) {
         // console.log("Friends: ", friends);
         // console.log("Local Friends: ", localOnline);
 
@@ -129,7 +122,7 @@ const Home = () => {
     };
 
     online();
-  }, [friends.length, localOnline]);
+  }, [friends, localOnline]);
 
   // console.log(onlineUsers);
 
