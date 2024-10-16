@@ -283,7 +283,6 @@ const ChatBox = () => {
     (fr) => fr.friend_id === anotherUser._id && fr.isFavourite
   );
 
-  console.log(isFav);
 
   return (
     <div
