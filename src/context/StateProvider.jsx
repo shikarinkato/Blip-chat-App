@@ -6,6 +6,9 @@ let token = JSON.parse(localStorage.getItem("token"));
 
 export let serverUrl;
 // serverUrl = "http://localhost:3000/api/v2";
+export let socketServer;
+// socketServer = "http://localhost:3000";
+socketServer = "https://blip-chat-backend.onrender.com";
 serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
 export let headerOptions = {
   "Content-Type": "application/json",
@@ -18,8 +21,6 @@ function StateProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [friends, setFriends] = useState([]);
   const [user, setUser] = useState({});
-  const [favourites, setFavourites] = useState([]);
-  const [actives, setActives] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   let socket = useRef(null);
 
@@ -335,16 +336,12 @@ function StateProvider({ children }) {
         isLogin,
         isAuthenticated,
         friends,
-        favourites,
         onlineUsers,
-        actives,
         user,
         socket,
         setIsLogin,
         setIsAuthenticated,
         setOnlineUsers,
-        setActives,
-        setFavourites,
         setFriends,
         login,
         signUp,

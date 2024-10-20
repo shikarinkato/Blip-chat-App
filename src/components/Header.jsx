@@ -4,7 +4,7 @@ import React from "react";
 
 const Header = () => {
   function handleSearch(e) {
-    console.log(e.target);
+    // console.log(e.target);
   }
   return (
     <header className=" w-full flex justify-center items-center py-3 border-l-[1px] border-b-[1px] border-stone-700 border-b-stone-900 gap-x-2 select-none">

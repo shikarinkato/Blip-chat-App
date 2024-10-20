@@ -18,7 +18,7 @@ const Users = () => {
   const [actives, setActives] = useState([]);
   const [favourites, setFavourites] = useState([]);
   const navigate = useNavigate();
-  let { friends, getFriendsProfiles, onlineUsers, socket } =
+  let { friends, getFriendsProfiles, onlineUsers, socket, user } =
     useContext(Context);
 
   // let activeLength= actives?.length, favourites.length, friends.length
@@ -121,16 +121,19 @@ const Users = () => {
   }, []);
 
   useEffect(() => {
+    let favorite = user?.friends?.filter((fr) => fr.isFavourite === true);
     const fetchProfiles = async () => {
       if (onlineUsers.length > 0) {
         const activeProfiles = await getFriendsProfiles(onlineUsers);
         setActiveUsers(activeProfiles.chats);
+      } else {
+        setActiveUsers([]);
       }
-      if (favourites.length > 0) {
-        const favouriteProfiles = await getFriendsProfiles(favourites);
+      if (favorite.length > 0) {
+        const favouriteProfiles = await getFriendsProfiles(favorite);
         setFavouriteUsers(favouriteProfiles.chats);
       }
-      if (friends?.length > 0) {
+      if (user?.friends?.length > 0) {
         let updatedFriend = friends.map((fr) => fr.friend_id);
         const friendsProfiles = await getFriendsProfiles(updatedFriend);
         setFriendUsers(friendsProfiles.chats);
@@ -138,12 +141,7 @@ const Users = () => {
     };
 
     fetchProfiles();
-  }, [
-    favourites?.length,
-    friends?.length,
-    getFriendsProfiles,
-    onlineUsers.length,
-  ]);
+  }, [friends?.length, getFriendsProfiles, onlineUsers.length]);
 
   useLayoutEffect(() => {
     animationHandler();
@@ -168,7 +166,14 @@ const Users = () => {
     });
   }, []);
 
+  console.log("Actiove Users: ", activeUsers);
 
+  // useEffect(() => {
+  //   console.log("Online Users: ", onlineUsers);
+  // }, [onlineUsers.length]);
+
+  // console.log(onlineUsers);
+  // console.log("friends: ", friends);
 
   return (
     <div className="w-full h-full">

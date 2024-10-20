@@ -83,23 +83,27 @@ const SideBar = () => {
   }, []);
 
   function listener(e) {
-    console.log(e.target);
+    // console.log(e.target);
   }
 
   return (
     <div className=" h-full w-full md:w-4/6 lg:w-6/12 xl:w-2/6 bg-[#1F1F22] absolute sm:relative z-50">
-      <div className=" flex flex-col justify-start items-start h-full w-full px-1 relative">
-        <SideBarHeader user={user} />
-        <div className="py-3 w-full">
-          <UserSearch />
+      {user ? (
+        <div className=" flex flex-col justify-start items-start h-full w-full px-1 relative">
+          <SideBarHeader user={user} />
+          <div className="py-3 w-full">
+            <UserSearch />
+          </div>
+          <div className=" w-full flex  h-full overflow-hidden ">
+            <Users />
+          </div>
+          <div className=" absolute bottom-4 right-3 p-3 px-4 rounded-full bg-stone-700">
+            <FontAwesomeIcon icon={faGear} className=" text-white" />
+          </div>
         </div>
-        <div className=" w-full flex  h-full overflow-hidden ">
-          <Users />
-        </div>
-        <div className=" absolute bottom-4 right-3 p-3 px-4 rounded-full bg-stone-700">
-          <FontAwesomeIcon icon={faGear} className=" text-white" />
-        </div>
-      </div>
+      ) : (
+        <Loader />
+      )}
     </div>
   );
 };

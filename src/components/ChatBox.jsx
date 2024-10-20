@@ -86,7 +86,6 @@ const ChatBox = () => {
 
   useEffect(() => {
     if (chat && (!messages || messages.length === 0)) {
-      console.log("Triggered");
       setMessages(chat.allMessages);
     }
   }, [chat, messages?.length]);
@@ -115,6 +114,9 @@ const ChatBox = () => {
     setInput("");
 
     socket.current.emit("send-message", room.current, msgObj);
+    // console.log("called");
+    // console.log("Current room: ", room.current);
+    // console.log("Message: ", msgObj);
     inputRef.current.value = "";
   }
 
@@ -228,7 +230,6 @@ const ChatBox = () => {
 
   function showOpener(e) {
     e.stopPropagation();
-    console.log(e.target);
     setShow(true);
   }
 
@@ -238,7 +239,6 @@ const ChatBox = () => {
   }
 
   async function handleAddToFav(e, action) {
-    console.log("Called add to fav");
     try {
       let res = await fetch(`${serverUrl}/user/friends/favourites/add`, {
         headers: headerOptions,
@@ -286,6 +286,7 @@ const ChatBox = () => {
       (fr) => fr.friend_id === anotherUser._id && fr.isFavourite
     );
   }
+
 
   return (
     <div
