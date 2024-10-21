@@ -6,10 +6,11 @@ let token = JSON.parse(localStorage.getItem("token"));
 
 export let serverUrl;
 // serverUrl = "http://localhost:3000/api/v2";
+serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
+
 export let socketServer;
 // socketServer = "http://localhost:3000";
 socketServer = "https://blip-chat-backend.onrender.com";
-serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
 export let headerOptions = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${token}`,

@@ -288,6 +288,9 @@ const ChatBox = () => {
   }
 
 
+  console.log(messages);
+
+
   return (
     <div
       className=" text-white w-full h-full flex justify-center  flex-col relative z-[99] bg-[#1f1f22] sm:bg-transparent overflow-hidden"
@@ -296,7 +299,7 @@ const ChatBox = () => {
       <header className=" bg-[#1F1F22] w-full flex justify-between items-center h-20 border-b-[1px] border-b-gray-600 sm:border-none ">
         <nav className=" flex justify-between xl:justify-start items-center gap-x-6 h-full overflow-hidden w-5/6 xl:w-1/2">
           <div
-            className=" h-full flex justify-end items-center w-[11%]  xl:w-[8%] 2xl:w-[6%]  relative -left-[2px] "
+            className=" h-full flex justify-end items-center w-[11%]  xl:w-[7%] 2xl:w-[6%]  relative -left-[2px] "
             onClick={handleBack}
           >
             <FontAwesomeIcon

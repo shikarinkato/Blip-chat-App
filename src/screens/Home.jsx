@@ -3,15 +3,21 @@ import React, { lazy, Suspense, useContext, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import Loader from "../components/Loader";
-import { Context, serverUrl, socketServer } from "../context/StateProvider";
+import { Context, socketServer } from "../context/StateProvider";
 
 const Home = () => {
   const SideBar = lazy(() => import("../components/SideBar"));
   const BG = lazy(() => import("../components/BG"));
   const toast = useToast();
 
-  let { getAllFriends, getProfile, setOnlineUsers, socket, user, onlineUsers } =
-    useContext(Context);
+  let {
+    friends,
+    getAllFriends,
+    getProfile,
+    setOnlineUsers,
+    socket,
+    onlineUsers,
+  } = useContext(Context);
 
   const navigate = useNavigate();
   const [isSocketConnected, setIsSocketConnected] = useState(false);
@@ -109,10 +115,8 @@ const Home = () => {
 
   useEffect(() => {
     const online = async () => {
-      let friends = user?.friends;
       if (socket.current && friends?.length > 0) {
         socket.current.emit("call-update-users");
-        console.log("Trigerred:", socket.current);
         socket.current.on("update-active-users", (arr, callback) => {
           console.log("Listening updated users: ", arr);
           let online = friends
@@ -137,7 +141,7 @@ const Home = () => {
       }
       setOnlineUsers([]);
     };
-  }, [user?.friends?.length, isSocketConnected]);
+  }, [friends.length, isSocketConnected]);
 
   console.log(isSocketConnected);
 

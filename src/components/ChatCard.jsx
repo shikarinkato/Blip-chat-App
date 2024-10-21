@@ -4,6 +4,7 @@ import { Context } from "../context/StateProvider";
 const ChatCard = ({ chat, anotherUser }) => {
   const { user, onlineUsers } = useContext(Context);
   const isSameUser = chat.sender_id.toString() === user._id.toString();
+  console.log(chat);
 
   return (
     <div
@@ -13,7 +14,7 @@ const ChatCard = ({ chat, anotherUser }) => {
     >
       <div className=" flex items-end justify-end  gap-x-3 ">
         {!isSameUser && anotherUser._id && (
-          <div className=" relative overflow-hidden">
+          <div className=" relative ">
             {onlineUsers.includes(anotherUser._id) && (
               <span className=" p-1 rounded-full bg-green-500 absolute -right-1 overflow-hidden" />
             )}
@@ -40,7 +41,7 @@ const ChatCard = ({ chat, anotherUser }) => {
           </span>
         </div>
         {isSameUser && (
-          <div className=" relative overflow-hidden ">
+          <div className=" relative  ">
             <span className=" p-1 rounded-full bg-green-500 absolute -right-1" />
             <img
               className=" w-[30px] h-[30px] sm:h-[50px] sm:w-[50px] rounded-full object-cover"
