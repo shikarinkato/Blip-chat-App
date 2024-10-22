@@ -222,7 +222,7 @@ const SignUp = () => {
     }
   }
 
-  console.log(formData);
+  // console.log(formData);
 
   return (
     <div className=" flex flex-col h-5/6 py-3 w-full text-center justify-center items-center">

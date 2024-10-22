@@ -94,7 +94,6 @@ const LoginAndSignup = ({ Children }) => {
 
   const handleAnimation = () => {
     if (isLogin) {
-      console.log(currWidth);
 
       containerAnimation.start({
         height: `${currHeight}vmax`,
@@ -124,11 +123,9 @@ const LoginAndSignup = ({ Children }) => {
   };
 
   const widthHandler = () => {
-    console.log("Clled resize");
     setinnerWidth(window.innerWidth);
   };
 
-  console.log("Window innerWidth: ", innerWidth);
   return (
     <div className=" h-full md:w-full  flex justify-center items-center ">
       <div

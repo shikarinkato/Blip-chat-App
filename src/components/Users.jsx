@@ -12,6 +12,7 @@ import UsersContainer from "./UsersContainer";
 import { Context } from "../context/StateProvider";
 import Loader from "./Loader";
 import { useNavigate } from "react-router-dom";
+import UsersLoader from "./UsersLoader";
 
 const Users = () => {
   const [activeBar, setActiveBar] = useState(1);
@@ -196,7 +197,7 @@ const Users = () => {
           animate={animations[0]}
           className="w-full absolute"
         >
-          <Suspense fallback={<Loader />}>
+          <Suspense fallback={<UsersLoader />}>
             <UsersContainer zeroTitle="0 Online Friends" users={activeUsers} />
           </Suspense>
         </motion.div>
@@ -205,7 +206,7 @@ const Users = () => {
           animate={animations[1]}
           className="w-full absolute"
         >
-          <Suspense fallback={<Loader />}>
+          <Suspense fallback={<UsersLoader />}>
             <UsersContainer
               users={favouriteUsers}
               zeroTitle="You have 0 favorite friend"
@@ -217,7 +218,7 @@ const Users = () => {
           animate={animations[2]}
           className="w-full absolute"
         >
-          <Suspense fallback={<Loader />}>
+          <Suspense fallback={<UsersLoader />}>
             <UsersContainer
               zeroTitle="You have 0 Friends"
               users={friendUsers}

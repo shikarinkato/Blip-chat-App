@@ -3,9 +3,8 @@ import { Context } from "../context/StateProvider";
 
 const ChatCard = ({ chat, anotherUser }) => {
   const { user, onlineUsers } = useContext(Context);
-  const isSameUser = chat.sender_id.toString() === user._id.toString();
-  console.log(chat);
-
+  const isSameUser = chat.sender_id?.toString() === user._id.toString();
+  // console.log(chat);
   return (
     <div
       className={`relative flex items-center   w-full ${

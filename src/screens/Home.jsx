@@ -77,8 +77,8 @@ const Home = () => {
         // setIsAuthenticated(true);
 
         //Get init info
-        await getProfile(); // wait get profile info
-        await getAllFriends();
+        await getProfile(token); // wait get profile info
+        await getAllFriends(token);
 
         //Socket listener function
         initializeSocket();
@@ -100,6 +100,11 @@ const Home = () => {
         socket.current.off("error");
         socket.current.off("update-active-users");
         socket.current.off("call-update-users");
+        socket.current.off("new-message");
+        socket.current.off("room-already");
+        socket.current.off("room-joined");
+        socket.current.off("join-room");
+        socket.current.off("initiate-chat");
         socket.current.disconnect();
         socket.current.on("disconnect", (id) => {
           toast({
@@ -141,14 +146,47 @@ const Home = () => {
       }
       setOnlineUsers([]);
     };
-  }, [friends.length, isSocketConnected]);
+  }, [friends, isSocketConnected]);
 
   console.log(isSocketConnected);
 
   return (
     <div className="h-screen w-screen">
       <div className="flex h-full w-full">
-        <Suspense fallback={<Loader />}>
+        <Suspense
+          fallback={
+            <div className=" flex flex-col justify-start items-start h-full w-full px-1 relative 2xl:min-w-[25vmax]">
+              <div className=" w-full py-2 px-3 border-b-[1px] border-gray-600">
+                <div className="  w-full flex items-center gap-x-3">
+                  <span className=" h-12 w-16 rounded-full skeleton"></span>
+                  <div className="w-full flex flex-col gap-y-1">
+                    <span className=" h-2 w-16 skeleton rounded-md"></span>
+                    <span className=" h-2 w-14 skeleton rounded-md"></span>
+                    <span className=" h-2 w-20 skeleton rounded-md"></span>
+                  </div>
+                </div>
+              </div>
+              <div className=" w-full flex justify-around items-center py-6 border-b-[1px] border-gray-600">
+                <div className=" w-20 h-3 rounded-md skeleton"></div>
+                <div className=" w-20 h-3 rounded-md skeleton"></div>
+                <div className=" w-20 h-3 rounded-md skeleton"></div>
+              </div>
+              <div className=" w-full flex flex-col  h-full overflow-hidden ">
+                {Array.from({ length: 3 }).map((item, idx) => (
+                  <div className=" py-3 px-5" key={idx}>
+                    <div className=" flex items-center gap-x-3 w-full">
+                      <span className=" h-10 w-12 rounded-full skeleton"></span>
+                      <div className=" flex flex-col gap-y-1 w-full">
+                        <span className=" h-2 rounded-md w-20 skeleton"></span>
+                        <span className=" h-1 rounded-md w-12 skeleton"></span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          }
+        >
           <SideBar />
         </Suspense>
         <div className=" h-full w-full bg-[#1F1F22]">

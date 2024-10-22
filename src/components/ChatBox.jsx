@@ -18,7 +18,12 @@ import React, {
   useState,
 } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Context, headerOptions, serverUrl } from "../context/StateProvider";
+import {
+  Context,
+  headerOptions,
+  serverUrl,
+  socketServer,
+} from "../context/StateProvider";
 import ChatCard from "./ChatCard";
 import { useToast } from "@chakra-ui/toast";
 import { useAnimation, motion } from "framer-motion";
@@ -122,7 +127,7 @@ const ChatBox = () => {
 
   useEffect(() => {
     async function initiateChat() {
-      console.log("Chat initiated");
+      // console.log("Chat initiated");
       socket.current.emit(
         "initiate-chat",
         anotherUser.user + user._id,
@@ -132,22 +137,23 @@ const ChatBox = () => {
       room.current = user._id + anotherUser.user;
     }
 
-    let timer = setTimeout(() => {
-      if (socket.current) {
-        console.log("Clled");
-      }
-      initiateChat();
-    }, 2000);
+    // let timer = setTimeout(() => {
+    if (socket.current) {
+      // console.log("Clled");
+    }
+    initiateChat();
+    // }, 2000);
 
     return () => {
-      clearTimeout(timer);
+      // clearTimeout(timer);
+      socket.current.off("initiate-chat");
     };
   }, [user]);
 
   useEffect(() => {
     if (socket.current !== null) {
       socket.current.on("new-message", (msg) => {
-        console.log("New Message");
+        // console.log("New Message");
         setMessages((prev) => [...prev, msg]);
       });
 
@@ -178,7 +184,17 @@ const ChatBox = () => {
         room.current = roomID;
       });
     }
-  }, []);
+
+    return () => {
+      if (socket.current) {
+        // console.log("Abhi zinda hu");
+        socket.current.off("new-message");
+        socket.current.off("room-already");
+        socket.current.off("room-joined");
+        socket.current.off("join-room");
+      }
+    };
+  }, [socket.current]);
 
   useLayoutEffect(() => {
     if (chatRef.current) {
@@ -287,9 +303,9 @@ const ChatBox = () => {
     );
   }
 
+  // console.log(messages);
 
-  console.log(messages);
-
+  // console.log("Current Room: ", room.current);
 
   return (
     <div

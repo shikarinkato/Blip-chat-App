@@ -2,15 +2,16 @@ import { useToast } from "@chakra-ui/toast";
 import React, { createContext, useRef, useState } from "react";
 export let Context = createContext();
 
+//extrcting the token
 let token = JSON.parse(localStorage.getItem("token"));
 
 export let serverUrl;
-// serverUrl = "http://localhost:3000/api/v2";
-serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
+serverUrl = "http://localhost:3000/api/v2";
+// serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
 
 export let socketServer;
-// socketServer = "http://localhost:3000";
-socketServer = "https://blip-chat-backend.onrender.com";
+socketServer = "http://localhost:3000";
+// socketServer = "https://blip-chat-backend.onrender.com";
 export let headerOptions = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${token}`,
@@ -78,12 +79,15 @@ function StateProvider({ children }) {
     }
   };
 
-  const getAllFriends = async () => {
+  const getAllFriends = async (token) => {
+    headerOptions.Authorization = `Bearer ${token}`;
     try {
       let res = await fetch(`${serverUrl}/user/friends/get-all`, {
         method: "GET",
         headers: { ...headerOptions },
       });
+
+
 
       let data = await res.json();
       if (data.success === true) {
@@ -111,7 +115,8 @@ function StateProvider({ children }) {
     }
   };
 
-  const getProfile = async () => {
+  const getProfile = async (token) => {
+    headerOptions.Authorization = `Bearer ${token}`;
     try {
       if (!token) {
         return toast({
