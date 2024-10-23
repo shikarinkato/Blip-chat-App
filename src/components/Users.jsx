@@ -16,8 +16,6 @@ import UsersLoader from "./UsersLoader";
 
 const Users = () => {
   const [activeBar, setActiveBar] = useState(1);
-  const [actives, setActives] = useState([]);
-  const [favourites, setFavourites] = useState([]);
   const navigate = useNavigate();
   let { friends, getFriendsProfiles, onlineUsers, socket, user } =
     useContext(Context);
@@ -38,6 +36,8 @@ const Users = () => {
   const [activeUsers, setActiveUsers] = useState([]);
   const [favouriteUsers, setFavouriteUsers] = useState([]);
   const [friendUsers, setFriendUsers] = useState([]);
+
+  let token = JSON.parse(localStorage.getItem("token"));
 
   const animationHandler = useCallback(() => {
     if (activeBar === 1) {
@@ -106,43 +106,53 @@ const Users = () => {
     }
   }, [activeBar]);
 
-  useEffect(() => {
-    function activesAndFavs() {
-      friends?.map((fr) => {
-        if (fr.isFavourite === true) {
-          setFavourites((prev) => [...prev, fr.friend_id]);
-        }
-        // if (onlineUsers.includes(fr.friend_id)) {
-        //   setActives((prev) => [...prev, fr.friend_id]);
-        // }
-      });
-    }
+  // useEffect(() => {
+  //   function activesAndFavs() {
+  //     friends?.map((fr) => {
+  //       if (fr.isFavourite === true) {
+  //         setFavourites((prev) => [...prev, fr.friend_id]);
+  //       }
+  //       // if (onlineUsers.includes(fr.friend_id)) {
+  //       //   setActives((prev) => [...prev, fr.friend_id]);
+  //       // }
+  //     });
+  //   }
 
-    activesAndFavs();
-  }, []);
+  //   activesAndFavs();
+  // }, []);
 
   useEffect(() => {
-    let favorite = user?.friends?.filter((fr) => fr.isFavourite === true);
+    let favorite = user?.friends
+      ?.filter((fr) => fr.isFavourite === true)
+      .map((fr) => fr.friend_id);
     const fetchProfiles = async () => {
       if (onlineUsers.length > 0) {
-        const activeProfiles = await getFriendsProfiles(onlineUsers);
+        const activeProfiles = await getFriendsProfiles(onlineUsers, token);
         setActiveUsers(activeProfiles.chats);
       } else {
         setActiveUsers([]);
       }
       if (favorite.length > 0) {
-        const favouriteProfiles = await getFriendsProfiles(favorite);
+        const favouriteProfiles = await getFriendsProfiles(favorite, token);
+        // console.log("Favourites: ", favorite);
         setFavouriteUsers(favouriteProfiles.chats);
       }
-      if (user?.friends?.length > 0) {
+      if (friends?.length > 0) {
         let updatedFriend = friends.map((fr) => fr.friend_id);
-        const friendsProfiles = await getFriendsProfiles(updatedFriend);
+        // console.log("Updated: ", updatedFriend);
+        const friendsProfiles = await getFriendsProfiles(updatedFriend, token);
         setFriendUsers(friendsProfiles.chats);
       }
     };
 
     fetchProfiles();
-  }, [friends?.length, getFriendsProfiles, onlineUsers.length]);
+  }, [
+    friends?.length,
+    getFriendsProfiles,
+    onlineUsers.length,
+    // friendUsers?.length,
+  ]);
+  // console.log("Friends: ", friendUsers);
 
   useLayoutEffect(() => {
     animationHandler();
@@ -150,8 +160,8 @@ const Users = () => {
 
   useEffect(() => {
     socket.current.on("old-messages", (msgs) => {
-      console.log("Old messges ");
-      console.log(msgs);
+      // console.log("Old messges ");
+      // console.log(msgs);
     });
     socket.current.on("room-joined", (roomID) => {
       let room = roomID.slice(0, 24);
@@ -165,9 +175,16 @@ const Users = () => {
         )
         .then((err) => console.log(err));
     });
+
+    return () => {
+      if (socket.current) {
+        socket.current.off("old-messages");
+        socket.current.off("room-joined");
+      }
+    };
   }, []);
 
-  console.log("Actiove Users: ", activeUsers);
+  // console.log("Actiove Users: ", activeUsers);
 
   // useEffect(() => {
   //   console.log("Online Users: ", onlineUsers);
