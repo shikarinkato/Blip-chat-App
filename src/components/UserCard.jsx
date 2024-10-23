@@ -7,7 +7,7 @@ import { Context } from "../context/StateProvider";
 
 const UserCard = ({ anotherUser }) => {
   const navigate = useNavigate();
-  const [backgroundMsgs, setBackgroundMsgs] = useState([]);
+  const [backgroundMsgs, setBackgroundMsgs] = useState(0);
   const { onlineUsers, createChat, socket } = useContext(Context);
   if (anotherUser === null) {
     return (
@@ -48,12 +48,20 @@ const UserCard = ({ anotherUser }) => {
   useEffect(() => {
     if (socket.current) {
       socket.current.on("old-message", (msgs) => {
-        setBackgroundMsgs(msgs);
+        setBackgroundMsgs(msgs?.length);
       });
       socket.current.on("new-message-friend", (msgs) => {
-        setBackgroundMsgs((prev) => [...prev, msgs]);
+        setBackgroundMsgs((prev) => prev + msgs?.length);
+        // console.log("Length: ", msgs.length);
       });
     }
+    return () => {
+      if (socket.current) {
+        socket.current.off("old-messages");
+        socket.current.off("new-message-friend");
+      }
+      setBackgroundMsgs(0)
+    };
   }, []);
 
   return (
@@ -86,9 +94,9 @@ const UserCard = ({ anotherUser }) => {
                 anotherUser?.lastMessage?.message.slice(0, 50)}
             </span>
           </div>
-          {backgroundMsgs.length > 0 && (
+          {backgroundMsgs > 0 && (
             <span className="bg-purpleGradient py-1 px-[0.6rem] rounded-full absolute right-20 text-[11px] text-white inline-block">
-              {backgroundMsgs.length}
+              {backgroundMsgs}
             </span>
           )}
           <div>

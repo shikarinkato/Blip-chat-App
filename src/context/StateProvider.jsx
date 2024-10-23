@@ -87,8 +87,6 @@ function StateProvider({ children }) {
         headers: { ...headerOptions },
       });
 
-
-
       let data = await res.json();
       if (data.success === true) {
         setFriends(data.friends);
@@ -159,7 +157,8 @@ function StateProvider({ children }) {
     }
   };
 
-  const getFriendsProfiles = async (friends) => {
+  const getFriendsProfiles = async (friends, token) => {
+    headerOptions.Authorization = `Bearer ${token}`;
     try {
       let res = await fetch(`${serverUrl}/user/friends/profiles`, {
         method: "PUT",

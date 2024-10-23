@@ -64,7 +64,11 @@ const Home = () => {
 
   useEffect(() => {
     // console.log("Useffect called Again");
-    socket.current = io(`${socketServer}`, { query: { token } });
+    socket.current = io(`${socketServer}`, {
+      query: { token },
+      transports: ["websocket"],
+      withCredentials: true,
+    });
 
     const asyncInit = async () => {
       if (socket.current) {
@@ -105,6 +109,10 @@ const Home = () => {
         socket.current.off("room-joined");
         socket.current.off("join-room");
         socket.current.off("initiate-chat");
+        socket.current.off("old-messages");
+        socket.current.off("new-message-friend");
+        socket.current.off("old-messages");
+        socket.current.off("room-joined");
         socket.current.disconnect();
         socket.current.on("disconnect", (id) => {
           toast({
@@ -123,7 +131,7 @@ const Home = () => {
       if (socket.current && friends?.length > 0) {
         socket.current.emit("call-update-users");
         socket.current.on("update-active-users", (arr, callback) => {
-          console.log("Listening updated users: ", arr);
+          // console.log("Listening updated users: ", arr);
           let online = friends
             .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
             .filter((fr) => fr !== null);
@@ -147,8 +155,6 @@ const Home = () => {
       setOnlineUsers([]);
     };
   }, [friends, isSocketConnected]);
-
-  console.log(isSocketConnected);
 
   return (
     <div className="h-screen w-screen">

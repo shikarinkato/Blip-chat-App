@@ -17,7 +17,7 @@ const App = () => {
   //   }
   // }, []);
 
-  console.log("App component rendered");
+  // console.log("App component rendered");
   return (
     <div style={{ color: "black", fontSize: "20px" }}>
       <Routes>

@@ -127,7 +127,7 @@ const ChatBox = () => {
 
   useEffect(() => {
     async function initiateChat() {
-      // console.log("Chat initiated");
+      console.log("Chat initiated");
       socket.current.emit(
         "initiate-chat",
         anotherUser.user + user._id,
@@ -153,7 +153,7 @@ const ChatBox = () => {
   useEffect(() => {
     if (socket.current !== null) {
       socket.current.on("new-message", (msg) => {
-        // console.log("New Message");
+        console.log("New Message");
         setMessages((prev) => [...prev, msg]);
       });
 
@@ -303,7 +303,7 @@ const ChatBox = () => {
     );
   }
 
-  // console.log(messages);
+  console.log(messages?.length);
 
   // console.log("Current Room: ", room.current);
 
