@@ -1,4 +1,4 @@
-import { calcLength, motion, useAnimation } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import React, {
   Suspense,
   useCallback,
@@ -10,7 +10,6 @@ import React, {
 } from "react";
 import UsersContainer from "./UsersContainer";
 import { Context } from "../context/StateProvider";
-import Loader from "./Loader";
 import { useNavigate } from "react-router-dom";
 import UsersLoader from "./UsersLoader";
 
@@ -122,7 +121,10 @@ const Users = () => {
   }, []);
 
   useEffect(() => {
-    let favorite = user?.friends?.filter((fr) => fr.isFavourite === true);
+    let favorite = friends
+      ?.filter((fr) => fr.isFavourite === true)
+      .map((fr) => fr.friend_id);
+    console.log("Favourites: ", favorite);
     const fetchProfiles = async () => {
       if (onlineUsers.length > 0) {
         const activeProfiles = await getFriendsProfiles(onlineUsers);
@@ -134,15 +136,16 @@ const Users = () => {
         const favouriteProfiles = await getFriendsProfiles(favorite);
         setFavouriteUsers(favouriteProfiles.chats);
       }
-      if (user?.friends?.length > 0) {
+      if (friends.length > 0) {
         let updatedFriend = friends.map((fr) => fr.friend_id);
+        console.log("Updated Friend: ", updatedFriend);
         const friendsProfiles = await getFriendsProfiles(updatedFriend);
         setFriendUsers(friendsProfiles.chats);
       }
     };
 
     fetchProfiles();
-  }, [friends?.length, getFriendsProfiles, onlineUsers.length]);
+  }, [friends?.length, getFriendsProfiles, onlineUsers?.length]);
 
   useLayoutEffect(() => {
     animationHandler();
@@ -167,14 +170,13 @@ const Users = () => {
     });
   }, []);
 
-  console.log("Actiove Users: ", activeUsers);
+  // console.log("Actiove Users: ", activeUsers);
 
   // useEffect(() => {
   //   console.log("Online Users: ", onlineUsers);
   // }, [onlineUsers.length]);
 
   // console.log(onlineUsers);
-  // console.log("friends: ", friends);
 
   return (
     <div className="w-full h-full">

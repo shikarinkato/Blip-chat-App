@@ -7,7 +7,7 @@ import { Context } from "../context/StateProvider";
 
 const UserCard = ({ anotherUser }) => {
   const navigate = useNavigate();
-  const [backgroundMsgs, setBackgroundMsgs] = useState([]);
+  const { backgroundMsgs, setBackgroundMsgs } = useContext(Context);
   const { onlineUsers, createChat, socket } = useContext(Context);
   if (anotherUser === null) {
     return (

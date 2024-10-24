@@ -24,6 +24,8 @@ function StateProvider({ children }) {
   const [friends, setFriends] = useState([]);
   const [user, setUser] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [backgroundMsgs, setBackgroundMsgs] = useState([]);
+
   let socket = useRef(null);
 
   const login = async (email, password) => {
@@ -86,8 +88,6 @@ function StateProvider({ children }) {
         method: "GET",
         headers: { ...headerOptions },
       });
-
-
 
       let data = await res.json();
       if (data.success === true) {
@@ -345,10 +345,12 @@ function StateProvider({ children }) {
         onlineUsers,
         user,
         socket,
+        backgroundMsgs,
         setIsLogin,
         setIsAuthenticated,
         setOnlineUsers,
         setFriends,
+        setBackgroundMsgs,
         login,
         signUp,
         getAllFriends,

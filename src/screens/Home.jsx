@@ -10,14 +10,8 @@ const Home = () => {
   const BG = lazy(() => import("../components/BG"));
   const toast = useToast();
 
-  let {
-    friends,
-    getAllFriends,
-    getProfile,
-    setOnlineUsers,
-    socket,
-    onlineUsers,
-  } = useContext(Context);
+  let { friends, getAllFriends, getProfile, setOnlineUsers, socket } =
+    useContext(Context);
 
   const navigate = useNavigate();
   const [isSocketConnected, setIsSocketConnected] = useState(false);
@@ -144,11 +138,8 @@ const Home = () => {
         socket.current.off("update-active-users");
         socket.current.off("call-update-users");
       }
-      setOnlineUsers([]);
     };
-  }, [friends, isSocketConnected]);
-
-  console.log(isSocketConnected);
+  }, [friends?.length]);
 
   return (
     <div className="h-screen w-screen">

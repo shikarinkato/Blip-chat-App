@@ -8,6 +8,7 @@ import { useToast } from "@chakra-ui/toast";
 const Login = () => {
   const { isLogin, login } = useContext(Context);
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
   const toast = useToast();
 
   let animations = [useAnimation(), useAnimation(), useAnimation()];
@@ -53,44 +54,50 @@ const Login = () => {
 
   function handleLogin(e) {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
-      return toast({
-        title: "Required fields are Missing",
-        status: "warning",
-        description: "Check before proceeding",
-        isClosable: true,
-        duration: 2000,
-        position: "bottom",
-      });
-    }
 
-    let isEmail = formData.email.includes("@");
-
-    if (isEmail) {
-      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailPattern.test(formData.email)) {
+    setLoading(true);
+    try {
+      if (!formData.email || !formData.password) {
         return toast({
-          title: "Invalid E-mail format",
+          title: "Required fields are Missing",
           status: "warning",
-          description: "Please enter a valid E-mail format",
+          description: "Check before proceeding",
           isClosable: true,
           duration: 2000,
           position: "bottom",
         });
       }
-    }
-    if (formData.password.length < 6) {
-      return toast({
-        title: "Password too short",
-        status: "warning",
-        description: "Password length should equal or more then 6",
-        isClosable: true,
-        duration: 2000,
-        position: "bottom",
-      });
-    }
 
-    login(formData.email, formData.password);
+      let isEmail = formData.email.includes("@");
+
+      if (isEmail) {
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(formData.email)) {
+          return toast({
+            title: "Invalid E-mail format",
+            status: "warning",
+            description: "Please enter a valid E-mail format",
+            isClosable: true,
+            duration: 2000,
+            position: "bottom",
+          });
+        }
+      }
+      if (formData.password.length < 6) {
+        return toast({
+          title: "Password too short",
+          status: "warning",
+          description: "Password length should equal or more then 6",
+          isClosable: true,
+          duration: 2000,
+          position: "bottom",
+        });
+      }
+
+      login(formData.email, formData.password);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useLayoutEffect(() => {
@@ -215,11 +222,12 @@ const Login = () => {
               delay: 1.2,
             },
           }}
+          disabled={loading ? true : false}
           type="submit"
           className="bg-purple-700 w-full px-4 py-2 text-white rounded-md text-xl font-bold border-none outline-none"
           style={{ outline: "none" }}
         >
-          Log in
+          {loading ? "Loading..." : "Log in"}
         </motion.button>
       </motion.form>
       <motion.h6
