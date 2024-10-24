@@ -117,7 +117,7 @@ const Home = () => {
       if (socket.current && friends?.length > 0) {
         socket.current.emit("call-update-users");
         socket.current.on("update-active-users", (arr, callback) => {
-          console.log("Listening updated users: ", arr);
+          // console.log("Listening updated users: ", arr);
           let online = friends
             .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
             .filter((fr) => fr !== null);

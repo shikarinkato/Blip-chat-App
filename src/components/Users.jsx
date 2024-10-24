@@ -124,7 +124,7 @@ const Users = () => {
     let favorite = friends
       ?.filter((fr) => fr.isFavourite === true)
       .map((fr) => fr.friend_id);
-    console.log("Favourites: ", favorite);
+    // console.log("Favourites: ", favorite);
     const fetchProfiles = async () => {
       if (onlineUsers.length > 0) {
         const activeProfiles = await getFriendsProfiles(onlineUsers);
@@ -138,7 +138,7 @@ const Users = () => {
       }
       if (friends.length > 0) {
         let updatedFriend = friends.map((fr) => fr.friend_id);
-        console.log("Updated Friend: ", updatedFriend);
+        // console.log("Updated Friend: ", updatedFriend);
         const friendsProfiles = await getFriendsProfiles(updatedFriend);
         setFriendUsers(friendsProfiles.chats);
       }
