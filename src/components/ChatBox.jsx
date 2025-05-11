@@ -102,27 +102,31 @@ const ChatBox = () => {
   }, []);
 
   const chatFetchingHelper = useCallback(() => {
-    if (hasMore.current === true) {
-      fetchChats(userId, next.current)
-        .then((res) => {
-          setMessages((prev) => [
-            ...res?.chats[0].messages[0].pgntdRlst,
-            ...prev,
-          ]);
-          isFetching.current = true;
+    if (friends.includes(anotherUser)) {
+      if (hasMore.current === true) {
+        fetchChats(userId, next.current)
+          .then((res) => {
+            setMessages((prev) => [
+              ...res?.chats[0]?.messages[0]?.pgntdRlst,
+              ...prev,
+            ]);
+            isFetching.current = true;
 
-          hasMore.current = res.hasMore;
-          next.current = res.next;
-          setLoading(false);
-        })
-        .catch((err) => {
-          setLoading(false);
-          console.log(err);
-        });
+            hasMore.current = res.hasMore;
+            next.current = res.next;
+            setLoading(false);
+          })
+          .catch((err) => {
+            setLoading(false);
+            console.log(err);
+          });
+      } else {
+        setLoading(false);
+      }
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [friends?.length]);
 
   useEffect(() => {
     chatFetchingHelper();
