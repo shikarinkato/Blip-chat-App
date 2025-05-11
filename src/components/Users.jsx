@@ -1,6 +1,5 @@
 import { motion, useAnimation } from "framer-motion";
 import React, {
-  // Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -15,12 +14,9 @@ import UsersContainer from "./UsersContainer";
 
 const Users = () => {
   const [activeBar, setActiveBar] = useState(1);
-  // const [favourites, setFavourites] = useState([]);
   const navigate = useNavigate();
   let { friends, getFriendsProfiles, onlineUsers, socket } =
     useContext(Context);
-
-  // let activeLength= actives?.length, favourites.length, friends.length
 
   const animations = [useAnimation(), useAnimation(), useAnimation()];
 
@@ -36,7 +32,7 @@ const Users = () => {
   const actvUsrs = useRef([]);
   const favUsrs = useRef([]);
   const frndUsrs = useRef([]);
-  const isFetched = useRef([]);
+  const isFetched = useRef(false);
 
   const animationHandler = useCallback(() => {
     if (activeBar === 1) {
@@ -105,21 +101,6 @@ const Users = () => {
     }
   }, [activeBar]);
 
-  // useEffect(() => {
-  //   function activesAndFavs() {
-  //     friends?.map((fr) => {
-  //       if (fr.isFavourite === true) {
-  //         setFavourites((prev) => [...prev, fr.friend_id]);
-  //       }
-  //       // if (onlineUsers.includes(fr.friend_id)) {
-  //       //   setActives((prev) => [...prev, fr.friend_id]);
-  //       // }
-  //     });
-  //   }
-
-  //   activesAndFavs();
-  // }, []);
-
   useEffect(() => {
     let favorite = friends
       ?.filter((fr) => fr.isFavourite === true)
@@ -174,13 +155,6 @@ const Users = () => {
     });
   }, []);
 
-  // console.log("Actiove Users: ", activeUsers);
-
-  // useEffect(() => {
-  //   console.log("Online Users: ", onlineUsers);
-  // }, [onlineUsers.length]);
-
-  // console.log(onlineUsers);
   // if (!actvUsrs.current?.length || !favUsrs.current || !frndUsrs.current) {
   //   return (
   //     <div>
@@ -190,7 +164,7 @@ const Users = () => {
   //   );
   // }
 
-  if (!friends || !onlineUsers) {
+  if (isFetched.current === false) {
     return (
       <div className=" w-full flex flex-col  h-full overflow-hidden ">
         {Array.from({ length: 3 }).map((item, idx) => (
@@ -223,46 +197,38 @@ const Users = () => {
           </span>
         ))}
       </div>
-      {isFetched.current === true && (
-        <div className="w-full overflow-hidden overflow-y-auto py-4 scroll-m-0 relative h-full flex justify-start">
-          <motion.div
-            initial={{ x: 0, opacity: 1 }}
-            animate={animations[0]}
-            className="w-full absolute"
-          >
-            {/* <Suspense fallback={<UsersLoader />}> */}
-            <UsersContainer
-              zeroTitle="0 Online Friends"
-              users={actvUsrs.current}
-            />
-            {/* </Suspense> */}
-          </motion.div>
-          <motion.div
-            initial={{ x: "50%", opacity: 0 }}
-            animate={animations[1]}
-            className="w-full absolute"
-          >
-            {/* <Suspense fallback={<UsersLoader />}> */}
-            <UsersContainer
-              users={favUsrs.current}
-              zeroTitle="You have 0 favorite friend"
-            />
-            {/* </Suspense> */}
-          </motion.div>
-          <motion.div
-            initial={{ x: "150%", opacity: 0 }}
-            animate={animations[2]}
-            className="w-full absolute"
-          >
-            {/* <Suspense fallback={<UsersLoader />}> */}
-            <UsersContainer
-              zeroTitle="You have 0 Friends"
-              users={frndUsrs.current}
-            />
-            {/* </Suspense> */}
-          </motion.div>
-        </div>
-      )}
+      <div className="w-full overflow-hidden overflow-y-auto py-4 scroll-m-0 relative h-full flex justify-start">
+        <motion.div
+          initial={{ x: 0, opacity: 1 }}
+          animate={animations[0]}
+          className="w-full absolute"
+        >
+          <UsersContainer
+            zeroTitle="0 Online Friends"
+            users={actvUsrs.current}
+          />
+        </motion.div>
+        <motion.div
+          initial={{ x: "50%", opacity: 0 }}
+          animate={animations[1]}
+          className="w-full absolute"
+        >
+          <UsersContainer
+            users={favUsrs.current}
+            zeroTitle="You have 0 favorite friend"
+          />
+        </motion.div>
+        <motion.div
+          initial={{ x: "150%", opacity: 0 }}
+          animate={animations[2]}
+          className="w-full absolute"
+        >
+          <UsersContainer
+            zeroTitle="You have 0 Friends"
+            users={frndUsrs.current}
+          />
+        </motion.div>
+      </div>
     </div>
   );
 };

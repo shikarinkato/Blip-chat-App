@@ -131,7 +131,7 @@ const Home = () => {
             .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
             .filter((fr) => fr !== null);
 
-          console.log("Online Users: ", onlineUsers);
+          // console.log("Online Users: ", onlineUsers);
           // console.log("Online In Home: ", online);
           // console.log("Friends: ", friends);
 
@@ -139,7 +139,7 @@ const Home = () => {
             .map((user) => (onlineUsers.includes(user) ? true : false))
             .some((item) => item === true);
 
-          console.log("Is Includes: ", isIncludes);
+          // console.log("Is Includes: ", isIncludes);
 
           !isIncludes && setOnlineUsers(online);
 

@@ -102,7 +102,7 @@ const ChatBox = () => {
   }, []);
 
   const chatFetchingHelper = useCallback(() => {
-    if (friends.includes(anotherUser)) {
+    if (friends.some((fr) => fr.friend_id === userId)) {
       if (hasMore.current === true) {
         fetchChats(userId, next.current)
           .then((res) => {
@@ -130,7 +130,7 @@ const ChatBox = () => {
 
   useEffect(() => {
     chatFetchingHelper();
-  }, [userId]);
+  }, [friends?.length]);
 
   // useEffect(() => {
   //   if (chat && chat.messages && (!messages || messages.length === 0)) {
@@ -298,6 +298,7 @@ const ChatBox = () => {
   }, [messages?.length]);
 
   useLayoutEffect(() => {
+    const width = window?.innerWidth;
     if (show) {
       // console.log("Called show");
       animations[0].start({
@@ -305,25 +306,28 @@ const ChatBox = () => {
         x: 0,
         transition: { duration: 1, ease: "circInOut", type: "spring" },
       });
-      animations[1].start({
-        y: 0,
-        transition: {
-          duration: 1,
-          ease: "circInOut",
-          type: "spring",
-          delay: 1.1,
-        },
-      });
+      if (width < 760) {
+        animations[1].start({
+          y: 0,
+          transition: {
+            duration: 1,
+            ease: "circInOut",
+            type: "spring",
+            delay: 1.1,
+          },
+        });
+      }
     } else {
-      console.log("Called not show");
-      animations[1].start({
-        y: "-150%",
-        transition: {
-          duration: 0.6,
-          ease: "circInOut",
-          type: "spring",
-        },
-      });
+      if (width < 760) {
+        animations[1].start({
+          y: "-150%",
+          transition: {
+            duration: 0.6,
+            ease: "circInOut",
+            type: "spring",
+          },
+        });
+      }
       animations[0].start({
         opacity: 0,
         x: "100%",

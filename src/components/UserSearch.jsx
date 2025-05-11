@@ -4,6 +4,7 @@ import { motion, useAnimation } from "framer-motion";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../context/StateProvider";
+import { useToast } from "@chakra-ui/toast";
 
 const UserSearch = () => {
   const [show, setShow] = useState(false);
@@ -12,6 +13,7 @@ const UserSearch = () => {
   const { searchUser, onlineUsers } = useContext(Context);
   let resultBox = useAnimation();
   let input = useRef();
+  const toast = useToast();
 
   function handleAnimaton() {
     if (show) {
@@ -39,11 +41,25 @@ const UserSearch = () => {
 
   async function handleAdd() {
     setShow(!show);
+    input.current.value = "";
+    !show && input.current.focus();
+    if (result.length > 0) {
+      setResult([]);
+    }
   }
 
   let current = null;
 
   async function handleSearch(e) {
+    if (!show) {
+      return toast({
+        title: "Open Drawer First by Cliking on '+' Icon",
+        status: "error",
+        isClosable: true,
+        duration: 2000,
+        position: "bottom",
+      });
+    }
     if (current) {
       clearTimeout(current);
     }
