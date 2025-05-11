@@ -4,7 +4,9 @@ import { Context } from "../context/StateProvider";
 const ChatCard = ({ chat, anotherUser }) => {
   const { user, onlineUsers } = useContext(Context);
   const isSameUser = chat.sender_id?.toString() === user._id.toString();
-  // console.log(chat);
+  let date = new Date(chat.createdAt);
+  date = date.toLocaleTimeString();
+
   return (
     <div
       className={`relative flex items-center   w-full ${
@@ -18,6 +20,7 @@ const ChatCard = ({ chat, anotherUser }) => {
               <span className=" p-1 rounded-full bg-green-500 absolute -right-1 overflow-hidden" />
             )}
             <img
+              loading="lazy"
               className=" w-[30px] h-[30px] sm:h-[50px] sm:w-[50px] rounded-full object-cover"
               src={
                 chat.sender_id === user._id ? "another user" : anotherUser.pic
@@ -27,15 +30,65 @@ const ChatCard = ({ chat, anotherUser }) => {
           </div>
         )}
         <div
-          className={` flex !pb-5  sm:py-3 sm:px-3 py-1 px-2  rounded-lg text-[15px] sm:text-[17px] text-neutral-100 lg:max-w-[40vw]  min-w-16 relative max-w-48`}
+          className={` flex !pb-5  sm:py-3 sm:px-3 py-1 px-2  rounded-lg text-[15px] sm:text-[17px] text-neutral-100 lg:max-w-[40vw] xl:max-w-[30vw]  min-w-16 relative max-w-48 flex-col ${
+            isSameUser ? "items-end" : "items-start"
+          }`}
           style={{
             background: !isSameUser
               ? "linear-gradient(90deg, rgba(112,99,243,1) 0%, rgba(185,79,233,1) 100%)"
               : "#2C2C32",
           }}
         >
-          <p className=" w-full break-words ">{chat.message}</p>
-          <span className=" text-[10px] lg:text-[12px] text-neutral-300 absolute right-1 bottom-[3px]">
+          <div
+            className={` grid ${
+              chat.files?.length >= 2 ? "grid-cols-2" : "grid-cols-1"
+            } gap-2 pb-2`}
+          >
+            {chat.files?.map((file, idx) => (
+              <div
+                key={file.id}
+                className=" max-h-[120px] max-w-[120px] h-auto w-auto rounded-md overflow-hidden flex items-center justify-center"
+              >
+                {[
+                  "jpg",
+                  "jpeg",
+                  "png",
+                  "gif",
+                  "bmp",
+                  "webp",
+                  "tiff",
+                  "tif",
+                  "svg",
+                  "ico",
+                  "avif",
+                  "heic",
+                ].includes(file.type) ? (
+                  <img
+                    alt="image"
+                    src={file.url}
+                    className=" object-cover object-center h-auto  rounded-md bg-black"
+                  />
+                ) : (
+                  <div
+                    className=" flex items-center justify-center h-[120px] w-[120px]"
+                    style={{
+                      backgroundColor: `rgb(${20 + idx * 20},${80 + idx * 30},${
+                        100 + idx * 75
+                      })`,
+                    }}
+                  >
+                    <span
+                      className={` text-center inline-block text-[15px] text-white m-auto  `}
+                    >
+                      {file.type.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="  break-words ">{chat.message}</p>
+          <span className=" text-[8px] lg:text-[10px] text-neutral-300 absolute right-1 bottom-[3px]">
             {chat.time} {chat.time.split(":")[0] < 12 ? "am" : "pm"}
           </span>
         </div>

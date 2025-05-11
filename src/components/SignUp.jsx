@@ -35,56 +35,68 @@ const SignUp = () => {
   const { isLogin, signUp, setIsLogin } = useContext(Context);
 
   function handleAnimations() {
-    animations[0].start({
-      scale: 1,
-      transition: {
-        duration: 1.2,
-        type: "spring",
-        ease: "easeInOut",
-        delay: 1.7,
-      },
-    });
-    animations[1].start({
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: "easeInOut",
-        type: "spring",
-        delay: 1.8,
-      },
-    });
-    animations[2].start({
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: "easeInOut",
-        type: "spring",
-        delay: 1.8,
-      },
-    });
-    animations[3].start({
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: "easeInOut",
-        type: "spring",
-        delay: 1.8,
-      },
-    });
-    animations[4].start({
-      x: 0,
-      opacity: 1,
-      display: "flex",
-      transition: {
-        duration: 0.8,
-        ease: "easeInOut",
-        type: "spring",
-        delay: 1.8,
-      },
-    });
+    if (isLogin) {
+      animations[0].start({
+        scale: 0,
+        transition: {
+          duration: 1.2,
+          type: "spring",
+          ease: "easeInOut",
+          delay: 0.5,
+        },
+      });
+    } else {
+      animations[0].start({
+        scale: 1,
+        transition: {
+          duration: 1.2,
+          type: "spring",
+          ease: "easeInOut",
+          delay: 1.7,
+        },
+      });
+      animations[1].start({
+        y: 0,
+        opacity: 1,
+        transition: {
+          duration: 0.8,
+          ease: "easeInOut",
+          type: "spring",
+          delay: 1.8,
+        },
+      });
+      animations[2].start({
+        y: 0,
+        opacity: 1,
+        transition: {
+          duration: 0.8,
+          ease: "easeInOut",
+          type: "spring",
+          delay: 1.8,
+        },
+      });
+      animations[3].start({
+        y: 0,
+        opacity: 1,
+        transition: {
+          duration: 0.8,
+          ease: "easeInOut",
+          type: "spring",
+          delay: 1.8,
+        },
+      });
+      animations[4].start({
+        x: 0,
+        opacity: 1,
+        display: "flex",
+        transition: {
+          duration: 0.8,
+          ease: "easeInOut",
+          type: "spring",
+          delay: 1.8,
+        },
+      });
+    }
   }
 
   useLayoutEffect(() => {
@@ -225,28 +237,27 @@ const SignUp = () => {
   // console.log(formData);
 
   return (
-    <div className=" flex flex-col h-5/6 py-3 w-full text-center justify-center items-center">
-      <motion.form
-        initial={{ display: "none" }}
-        animate={
-          isLogin
-            ? { opacity: 0, display: "none" }
-            : {
-                display: "flex",
-              }
-        }
-        transition={{
-          duration: 0.8,
-          ease: "circInOut",
-          type: "spring",
-          delay: 1.5,
-        }}
+    <div className=" flex flex-col  py-3 w-full text-center justify-center items-center pt-8 lg:pt-8">
+      <form
+        // initial={{ display: "none" }}
+        // animate={{
+        //   display: "flex",
+        // }}
+        // transition={{
+        //   duration: 0.8,
+        //   ease: "circInOut",
+        //   type: "spring",
+        //   delay: 1.5,
+        // }}
+        // layout
         className=" flex flex-col justify-start items-center gap-y-5 sm:gap-y-4 w-full  "
         onSubmit={handleSubmit}
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={animations[0]}
+          exit={{ translateX: "100%" }}
+          // layout
           className="profile_pic flex h-24 w-24 cursor-pointer rounded-full overflow-hidden "
         >
           <input
@@ -271,6 +282,8 @@ const SignUp = () => {
         <motion.div
           initial={{ y: 50, opacity: 0 }}
           animate={animations[1]}
+          exit={{ translateX: "100%" }}
+          layout
           className=" flex  gap-4 pt-3 flex-col xl:flex-row w-full"
         >
           <div className=" border-[1px] border-stone-700 rounded-full w-full">
@@ -325,7 +338,7 @@ const SignUp = () => {
         >
           {loading ? "Loading..." : "Sign up"}
         </motion.button>
-      </motion.form>
+      </form>
       <motion.h6
         initial={{ y: "50%", opacity: 0 }}
         animate={animations[4]}

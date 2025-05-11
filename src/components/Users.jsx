@@ -1,24 +1,23 @@
 import { motion, useAnimation } from "framer-motion";
 import React, {
-  Suspense,
+  // Suspense,
   useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
-import UsersContainer from "./UsersContainer";
-import { Context } from "../context/StateProvider";
 import { useNavigate } from "react-router-dom";
-import UsersLoader from "./UsersLoader";
+import { Context } from "../context/StateProvider";
+import UsersContainer from "./UsersContainer";
 
 const Users = () => {
   const [activeBar, setActiveBar] = useState(1);
-  const [actives, setActives] = useState([]);
-  const [favourites, setFavourites] = useState([]);
+  // const [favourites, setFavourites] = useState([]);
   const navigate = useNavigate();
-  let { friends, getFriendsProfiles, onlineUsers, socket, user } =
+  let { friends, getFriendsProfiles, onlineUsers, socket } =
     useContext(Context);
 
   // let activeLength= actives?.length, favourites.length, friends.length
@@ -34,9 +33,10 @@ const Users = () => {
     []
   );
 
-  const [activeUsers, setActiveUsers] = useState([]);
-  const [favouriteUsers, setFavouriteUsers] = useState([]);
-  const [friendUsers, setFriendUsers] = useState([]);
+  const actvUsrs = useRef([]);
+  const favUsrs = useRef([]);
+  const frndUsrs = useRef([]);
+  const isFetched = useRef([]);
 
   const animationHandler = useCallback(() => {
     if (activeBar === 1) {
@@ -105,58 +105,62 @@ const Users = () => {
     }
   }, [activeBar]);
 
-  useEffect(() => {
-    function activesAndFavs() {
-      friends?.map((fr) => {
-        if (fr.isFavourite === true) {
-          setFavourites((prev) => [...prev, fr.friend_id]);
-        }
-        // if (onlineUsers.includes(fr.friend_id)) {
-        //   setActives((prev) => [...prev, fr.friend_id]);
-        // }
-      });
-    }
+  // useEffect(() => {
+  //   function activesAndFavs() {
+  //     friends?.map((fr) => {
+  //       if (fr.isFavourite === true) {
+  //         setFavourites((prev) => [...prev, fr.friend_id]);
+  //       }
+  //       // if (onlineUsers.includes(fr.friend_id)) {
+  //       //   setActives((prev) => [...prev, fr.friend_id]);
+  //       // }
+  //     });
+  //   }
 
-    activesAndFavs();
-  }, []);
+  //   activesAndFavs();
+  // }, []);
 
   useEffect(() => {
     let favorite = friends
       ?.filter((fr) => fr.isFavourite === true)
       .map((fr) => fr.friend_id);
-    // console.log("Favourites: ", favorite);
+
     const fetchProfiles = async () => {
+      isFetched.current = false;
       if (onlineUsers.length > 0) {
         const activeProfiles = await getFriendsProfiles(onlineUsers);
-        setActiveUsers(activeProfiles.chats);
-      } else {
-        setActiveUsers([]);
+        actvUsrs.current = activeProfiles.chats;
       }
       if (favorite.length > 0) {
         const favouriteProfiles = await getFriendsProfiles(favorite);
-        setFavouriteUsers(favouriteProfiles.chats);
+        favUsrs.current = favouriteProfiles.chats;
       }
       if (friends.length > 0) {
         let updatedFriend = friends.map((fr) => fr.friend_id);
-        // console.log("Updated Friend: ", updatedFriend);
         const friendsProfiles = await getFriendsProfiles(updatedFriend);
-        setFriendUsers(friendsProfiles.chats);
+        frndUsrs.current = friendsProfiles.chats;
       }
     };
 
-    fetchProfiles();
-  }, [friends?.length, getFriendsProfiles, onlineUsers?.length]);
+    fetchProfiles()
+      .then(() => {
+        isFetched.current = true;
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [getFriendsProfiles, onlineUsers?.length]);
 
   useLayoutEffect(() => {
     animationHandler();
   }, [activeBar, animationHandler]);
 
   useEffect(() => {
-    socket.current.on("old-messages", (msgs) => {
+    socket.current?.on("old-messages", (msgs) => {
       console.log("Old messges ");
       console.log(msgs);
     });
-    socket.current.on("room-joined", (roomID) => {
+    socket.current?.on("room-joined", (roomID) => {
       let room = roomID.slice(0, 24);
       let res = friends.find((fr) => fr.friend_id.toString() === room);
 
@@ -177,6 +181,32 @@ const Users = () => {
   // }, [onlineUsers.length]);
 
   // console.log(onlineUsers);
+  // if (!actvUsrs.current?.length || !favUsrs.current || !frndUsrs.current) {
+  //   return (
+  //     <div>
+  //       {" "}
+  //       <span className=" text-2xl">No Users</span>
+  //     </div>
+  //   );
+  // }
+
+  if (!friends || !onlineUsers) {
+    return (
+      <div className=" w-full flex flex-col  h-full overflow-hidden ">
+        {Array.from({ length: 3 }).map((item, idx) => (
+          <div className=" py-3 px-5" key={idx}>
+            <div className=" flex items-center gap-x-3 w-full">
+              <span className=" h-10 w-12 rounded-full skeleton"></span>
+              <div className=" flex flex-col gap-y-1 w-full">
+                <span className=" h-2 rounded-md w-20 skeleton"></span>
+                <span className=" h-1 rounded-md w-12 skeleton"></span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full">
@@ -193,41 +223,46 @@ const Users = () => {
           </span>
         ))}
       </div>
-      <div className="w-full overflow-hidden overflow-y-auto py-4 scroll-m-0 relative h-full flex justify-start">
-        <motion.div
-          initial={{ x: 0, opacity: 1 }}
-          animate={animations[0]}
-          className="w-full absolute"
-        >
-          <Suspense fallback={<UsersLoader />}>
-            <UsersContainer zeroTitle="0 Online Friends" users={activeUsers} />
-          </Suspense>
-        </motion.div>
-        <motion.div
-          initial={{ x: "50%", opacity: 0 }}
-          animate={animations[1]}
-          className="w-full absolute"
-        >
-          <Suspense fallback={<UsersLoader />}>
+      {isFetched.current === true && (
+        <div className="w-full overflow-hidden overflow-y-auto py-4 scroll-m-0 relative h-full flex justify-start">
+          <motion.div
+            initial={{ x: 0, opacity: 1 }}
+            animate={animations[0]}
+            className="w-full absolute"
+          >
+            {/* <Suspense fallback={<UsersLoader />}> */}
             <UsersContainer
-              users={favouriteUsers}
+              zeroTitle="0 Online Friends"
+              users={actvUsrs.current}
+            />
+            {/* </Suspense> */}
+          </motion.div>
+          <motion.div
+            initial={{ x: "50%", opacity: 0 }}
+            animate={animations[1]}
+            className="w-full absolute"
+          >
+            {/* <Suspense fallback={<UsersLoader />}> */}
+            <UsersContainer
+              users={favUsrs.current}
               zeroTitle="You have 0 favorite friend"
             />
-          </Suspense>
-        </motion.div>
-        <motion.div
-          initial={{ x: "150%", opacity: 0 }}
-          animate={animations[2]}
-          className="w-full absolute"
-        >
-          <Suspense fallback={<UsersLoader />}>
+            {/* </Suspense> */}
+          </motion.div>
+          <motion.div
+            initial={{ x: "150%", opacity: 0 }}
+            animate={animations[2]}
+            className="w-full absolute"
+          >
+            {/* <Suspense fallback={<UsersLoader />}> */}
             <UsersContainer
               zeroTitle="You have 0 Friends"
-              users={friendUsers}
+              users={frndUsrs.current}
             />
-          </Suspense>
-        </motion.div>
-      </div>
+            {/* </Suspense> */}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

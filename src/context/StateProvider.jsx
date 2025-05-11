@@ -1,17 +1,18 @@
 import { useToast } from "@chakra-ui/toast";
-import React, { createContext, useRef, useState } from "react";
+import React, { createContext, useRef, useState, useEffect } from "react";
 export let Context = createContext();
+import { io } from "socket.io-client";
 
 //extrcting the token
 let token = JSON.parse(localStorage.getItem("token"));
 
 export let serverUrl;
-// serverUrl = "http://localhost:3000/api/v2";
-serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
+serverUrl = "http://localhost:3000/api/v2";
+// serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
 
 export let socketServer;
-// socketServer = "http://localhost:3000";
-socketServer = "https://blip-chat-backend.onrender.com";
+socketServer = "http://localhost:3000";
+// socketServer = "https://blip-chat-backend.onrender.com";
 export let headerOptions = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${token}`,
@@ -27,6 +28,19 @@ function StateProvider({ children }) {
   const [backgroundMsgs, setBackgroundMsgs] = useState([]);
 
   let socket = useRef(null);
+  let isReconnect = useRef(false);
+
+  useEffect(() => {
+    socket.current = io(`${socketServer}`, {
+      query: { token },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      timeout: 60000,
+    });
+  }, []);
+
+  // console.log("Called StateProvider");
+  // console.log("Socket: ",socket.current);
 
   const login = async (email, password) => {
     try {
@@ -135,6 +149,8 @@ function StateProvider({ children }) {
       res = await res.json();
       if (res.success === true) {
         setUser(res.user);
+        console.log("User: ", res);
+        setFriends(res.user?.friends);
       } else {
         throw new Error(res.message);
       }
@@ -228,16 +244,19 @@ function StateProvider({ children }) {
     }
   };
 
-  const fetchChats = async (anotherUser) => {
+  const fetchChats = async (anotherUser, skip) => {
     try {
-      let res = await fetch(`${serverUrl}/chats/friends/${anotherUser}`, {
-        method: "GET",
-        headers: { ...headerOptions },
-      });
+      let res = await fetch(
+        `${serverUrl}/chats/friends/${anotherUser}?&skip=${skip}&limit=10`,
+        {
+          method: "GET",
+          headers: { ...headerOptions },
+        }
+      );
 
       res = await res.json();
       if (res.success === true) {
-        return res.chats[0];
+        return res.result;
       } else {
         throw new Error(res.message);
       }
@@ -360,6 +379,7 @@ function StateProvider({ children }) {
         fetchChats,
         addToFriends,
         createChat,
+        isReconnect,
       }}
     >
       {children}

@@ -1,62 +1,91 @@
 import React, { useContext, useLayoutEffect, useState } from "react";
 import { Context } from "../context/StateProvider";
-import { useAnimation } from "framer-motion";
+import { AnimatePresence, useAnimation } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Input from "./Input";
 import { useToast } from "@chakra-ui/toast";
 const Login = () => {
-  const { isLogin, login } = useContext(Context);
+  const { login } = useContext(Context);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-  let animations = [useAnimation(), useAnimation(), useAnimation()];
+  // let animations = [useAnimation(), useAnimation(), useAnimation()];
 
   const navigate = useNavigate();
   let path = useLocation();
   path = path.pathname.split("/");
 
-  function handleAnimations() {
-    if (isLogin) {
-      animations[0].start({
-        x: 0,
-        transition: {
-          duration: 1.2,
-          type: "spring",
-          ease: "easeInOut",
-          delay: 1.7,
-        },
-      });
-      animations[1].start({
-        y: 0,
-        opacity: 1,
-        transition: {
-          duration: 0.8,
-          ease: "easeInOut",
-          type: "spring",
-          delay: 1.8,
-        },
-      });
-      animations[2].start({
-        y: 0,
-        opacity: 1,
-        transition: {
-          duration: 0.8,
-          ease: "easeInOut",
-          type: "spring",
-          delay: 1.8,
-        },
-      });
-    } else {
-    }
-  }
+  // function handleAnimations() {
+  //   // if (isLogin) {
+  //   //   animations[0].start({
+  //   //     x: 0,
+  //   //     transition: {
+  //   //       duration: 1.2,
+  //   //       type: "spring",
+  //   //       ease: "easeInOut",
+  //   //       delay: 1.7,
+  //   //     },
+  //   //   });
+  //   //   animations[1].start({
+  //   //     y: 0,
+  //   //     opacity: 1,
+  //   //     transition: {
+  //   //       duration: 0.8,
+  //   //       ease: "easeInOut",
+  //   //       type: "spring",
+  //   //       delay: 1.8,
+  //   //     },
+  //   //   });
+  //   //   animations[2].start({
+  //   //     y: 0,
+  //   //     opacity: 1,
+  //   //     transition: {
+  //   //       duration: 0.8,
+  //   //       ease: "easeInOut",
+  //   //       type: "spring",
+  //   //       delay: 1.8,
+  //   //     },
+  //   //   });
+  //   // } else {
+  //   //   animations[0].start({
+  //   //     x: "-100%",
+  //   //     transition: {
+  //   //       duration: 1.2,
+  //   //       type: "spring",
+  //   //       ease: "easeInOut",
+  //   //       delay: 1.7,
+  //   //     },
+  //   //   });
+  //   //   animations[1].start({
+  //   //     y: 0,
+  //   //     opacity: 1,
+  //   //     transition: {
+  //   //       duration: 0.8,
+  //   //       ease: "easeInOut",
+  //   //       type: "spring",
+  //   //       delay: 1.8,
+  //   //     },
+  //   //   });
+  //   //   animations[2].start({
+  //   //     y: 0,
+  //   //     opacity: 1,
+  //   //     transition: {
+  //   //       duration: 0.8,
+  //   //       ease: "easeInOut",
+  //   //       type: "spring",
+  //   //       delay: 1.8,
+  //   //     },
+  //   //   });
+  //   // }
+  // }
 
-  function handleLogin(e) {
+  async function handleLogin(e) {
     e.preventDefault();
 
-    setLoading(true);
     try {
+      setLoading(true);
       if (!formData.email || !formData.password) {
         return toast({
           title: "Required fields are Missing",
@@ -67,6 +96,8 @@ const Login = () => {
           position: "bottom",
         });
       }
+
+      console.log(loading);
 
       let isEmail = formData.email.includes("@");
 
@@ -94,27 +125,27 @@ const Login = () => {
         });
       }
 
-      login(formData.email, formData.password);
+      await login(formData.email, formData.password);
     } finally {
       setLoading(false);
     }
   }
 
-  useLayoutEffect(() => {
-    handleAnimations();
-  }, [isLogin]);
+  // useLayoutEffect(() => {
+  //   handleAnimations();
+  //   console.log("InnerWidth in Login: ", window.innerWidth);
+  // }, [isLogin]);
 
+  // console.log(loading)
   return (
     <div className="flex flex-col justify-center items-center w-full h-full gap-y-2">
       <motion.form
-        onSubmit={handleLogin}
-        initial={{ opacity: 1, height: "55%", display: "flex" }}
-        animate={
-          isLogin
-            ? { opacity: 1, height: "100%", display: "flex" }
-            : { opacity: 0, height: 0, display: "none" }
-        }
+        initial={{ opacity: 1, height: "55%", width: "100%" }}
+        animate={{ opacity: 1, height: "100%", width: "100%" }}
         transition={{ duration: 1, delay: 1 }}
+        exit={{ opacity: 0, height: 0 }}
+        // layout
+        onSubmit={handleLogin}
         className="  flex justify-center items-center flex-col gap-y-4 md:gap-y-5 lg:gap-y-7 xl:gap-y-5 2xl:gap-y-6   w-full"
       >
         <motion.div
@@ -148,7 +179,6 @@ const Login = () => {
             value={formData.email}
             type={"text"}
             placeholder="email or username,mobilenumber"
-            height="30px"
             onChange={(e) => {
               setFormData((prev) => ({
                 ...prev,
