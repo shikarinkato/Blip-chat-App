@@ -1,12 +1,12 @@
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import ChatBox from "./components/ChatBox";
 import Loader from "./components/Loader";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
 import AuthScreens from "./screens/AuthScreens";
 import Home from "./screens/Home";
 import LoginAndSignup from "./screens/LoginAndSignup";
-import ChatBox from "./components/ChatBox";
 
 const App = () => {
   const WelcomeScreen = lazy(() => import("./screens/WelcomeScreen"));
@@ -32,7 +32,14 @@ const App = () => {
           />
           <Route path="user/:userId" element={<ChatBox />} />
         </Route>
-        <Route path="/auth" element={<AuthScreens />}>
+        <Route
+          path="/auth"
+          element={
+            <Suspense fallback={<Loader />}>
+              <AuthScreens />
+            </Suspense>
+          }
+        >
           <Route
             index
             path="login"

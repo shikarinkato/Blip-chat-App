@@ -1,9 +1,10 @@
 import { faMessage } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { Suspense, useContext, useEffect } from "react";
+import { Suspense, useContext, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import MovingBG from "../components/MovingBG";
 import { Context } from "../context/StateProvider";
+import Loader from "../components/Loader";
 
 const AuthScreens = () => {
   const navigate = useNavigate();
@@ -41,7 +42,11 @@ const AuthScreens = () => {
         <MovingBG />
       </div>
       <div className=" h-full w-full   md:w-1/2 absolute sm:relative overflow-y-auto">
-        <Outlet />
+        {/* <AnimatePresence mode="wait"> */}
+        <Suspense fallback={<Loader />}>
+          <Outlet />
+        </Suspense>
+        {/* </AnimatePresence> */}
       </div>
     </div>
   );

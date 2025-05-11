@@ -32,8 +32,9 @@ const Input = ({ type, placeholder, onChange, height, value }) => {
     <div className=" relative w-full">
       <input
         value={input}
-        className={` h-10 md:h-10 lg:h-9 xl:h-10 2xl:h-[${height}] w-full bg-transparent  text-[16px] px-2 outline-none`}
+        className={` h-full w-full bg-transparent  text-[16px] px-2 outline-none`}
         type={type == "password" ? (show ? "text" : type) : type}
+        autoComplete={type === "password" ? "current-password" : ""}
         placeholder={placeholder}
         onChange={handleChange}
       />
@@ -43,7 +44,7 @@ const Input = ({ type, placeholder, onChange, height, value }) => {
             {show ? (
               <FontAwesomeIcon
                 onClick={() => {
-                  setShow(false); 
+                  setShow(false);
                 }}
                 icon={faEye}
               />

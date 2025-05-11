@@ -2,6 +2,9 @@ import { faSmile, faStar } from "@fortawesome/free-regular-svg-icons";
 import {
   faBars,
   faChevronLeft,
+  faClose,
+  faFile,
+  faImage,
   faPaperclip,
   faPaperPlane,
   faUserPlus,
@@ -18,15 +21,10 @@ import React, {
   useState,
 } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import {
-  Context,
-  headerOptions,
-  serverUrl,
-  socketServer,
-} from "../context/StateProvider";
+import { Context, headerOptions, serverUrl } from "../context/StateProvider";
 import ChatCard from "./ChatCard";
 import { useToast } from "@chakra-ui/toast";
-import { useAnimation, motion } from "framer-motion";
+import { useAnimation, motion, delay } from "framer-motion";
 
 const ChatBox = () => {
   const { userId } = useParams();
@@ -49,14 +47,38 @@ const ChatBox = () => {
     setIsAuthenticated,
   } = useContext(Context);
   const [messages, setMessages] = useState([]);
-  const [chat, setChat] = useState({});
-  const [input, setInput] = useState("");
+  // const [chat, setChat] = useState({});
+  const [message, setMessage] = useState({ text: "", files: [] });
   const [show, setShow] = useState(false);
+  const [showfilesDragger, setShowFilesDragger] = useState(false);
+  const [docsModal, setDocsModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const token = JSON.parse(localStorage.getItem("token"));
+
+  const animations = [
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+    useAnimation(),
+  ];
+
   const inputRef = useRef();
+  const filesDragger = useRef();
+  const formData = useRef(new FormData());
+  const isActive = useRef(null);
+  const hasMore = useRef(true);
+  const isFetching = useRef(false);
+  const next = useRef(0);
+  const fetchRef = useRef(null);
+  const chatParent = useRef(null);
+  const chatPrvsHght = useRef(0);
 
-  const animations = [useAnimation(), useAnimation()];
+  let resFiles = [];
 
-  let isActive = useRef(null);
+  // let token = JSON.parse(localStorage.getItem("token"));
 
   onlineUsers.includes(anotherUser._id)
     ? (isActive.current = true)
@@ -71,7 +93,7 @@ const ChatBox = () => {
     }
 
     timer.current = setTimeout(() => {
-      setInput(e.target.value);
+      setMessage((prev) => ({ ...prev, text: e.target.value }));
     }, 400);
 
     return () => {
@@ -79,165 +101,274 @@ const ChatBox = () => {
     };
   }, []);
 
-  useEffect(() => {
-    fetchChats(userId)
-      .then((res) => {
-        setChat(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [userId]);
+  const chatFetchingHelper = useCallback(() => {
+    if (hasMore.current === true) {
+      fetchChats(userId, next.current)
+        .then((res) => {
+          setMessages((prev) => [
+            ...res?.chats[0].messages[0].pgntdRlst,
+            ...prev,
+          ]);
+          isFetching.current = true;
+
+          hasMore.current = res.hasMore;
+          next.current = res.next;
+          setLoading(false);
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.log(err);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    if (chat && (!messages || messages.length === 0)) {
-      setMessages(chat.allMessages);
-    }
-  }, [chat, messages?.length]);
+    chatFetchingHelper();
+  }, [userId]);
+
+  // useEffect(() => {
+  //   if (chat && chat.messages && (!messages || messages.length === 0)) {
+  //     // setMessages(chat?.messages[0]?.pgntdRlst[0]);
+  //     setMessages((prev) => [...chat?.messages[0]?.pgntdRlst, ...prev]);
+  //   }
+  // }, [chat, messages?.length]);
 
   function handleAddFriend() {
     addToFriends(anotherUser._id);
   }
 
-  function sendMessage(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!input) {
-      return toast({
-        title: "Message is empty",
-        duration: 2000,
-        isClosable: true,
-        status: "warning",
+  const sendMessage = useCallback(
+    async (e, message) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!message?.text) {
+        return toast({
+          title: "Message is empty",
+          duration: 2000,
+          isClosable: true,
+          status: "warning",
+        });
+      }
+
+      const files = [];
+
+      message.files?.forEach((fl) => {
+        // console.log("File:", fl);
+        files.push({ url: `${user.pic}`, type: `${fl.name.split(".")[1]}` });
       });
-    }
 
-    let msgObj = {
-      sender_id: user._id,
-      receiver_id: anotherUser._id,
-      message: input,
-    };
-    setInput("");
+      let msgObj = {
+        sender_id: user._id,
+        receiver_id: anotherUser._id,
+        message: { text: message.text, files: files },
+      };
 
-    socket.current.emit("send-message", room.current, msgObj);
-    // console.log("called");
-    // console.log("Current room: ", room.current);
-    // console.log("Message: ", msgObj);
-    inputRef.current.value = "";
-  }
+      socket.current.emit("send-message", room.current, msgObj);
+      setMessage({ text: "", files: [] });
+      setShowFilesDragger(false);
+      setDocsModal(false);
+      inputRef.current.value = "";
+
+      if (msgObj?.message?.files?.length > 0) {
+        let res = await fetch(`${serverUrl}/messages/upload-files`, {
+          headers: { Authorization: `Bearer ${token}` },
+          method: "POST",
+          body: formData.current,
+        });
+
+        res = await res.json();
+        resFiles = res.files;
+        socket.current.emit("files-uploaded");
+      }
+
+      // setShow(false);
+      formData.current = new FormData();
+
+      console.log("Current Room ID: ", room.current);
+
+      // console.log("Current room: ", room.current);
+      // console.log("Message: ", msgObj);
+
+      return resFiles;
+    },
+    [user]
+  );
 
   useEffect(() => {
     async function initiateChat() {
       // console.log("Chat initiated");
-      socket.current.emit(
+      // console.log("Socket: ",socket.current);
+      socket.current?.emit(
         "initiate-chat",
         anotherUser.user + user._id,
         user._id + anotherUser.user,
         anotherUser.user
       );
       room.current = user._id + anotherUser.user;
+
+      socket.current?.once("reinitiate-chat", () => {
+        initiateChat();
+      });
     }
 
     // let timer = setTimeout(() => {
-    if (socket.current) {
-      // console.log("Clled");
-    }
+    // if (socket.current) {
+    // console.log("Clled");
+    // }
     initiateChat();
     // }, 2000);
 
     return () => {
       // clearTimeout(timer);
       socket.current.off("initiate-chat");
+      socket.current.off("reinitiate-chat");
     };
-  }, [user]);
+  }, [user, socket.current]);
+
+  // console.log("Messages Initialy: ", messages);
 
   useEffect(() => {
-    if (socket.current !== null) {
-      socket.current.on("new-message", (msg) => {
-        // console.log("New Message");
-        setMessages((prev) => [...prev, msg]);
-      });
+    socket.current?.on("new-message", (msg) => {
+      console.log("New Message");
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      setMessages((prev) => [...prev, msg]);
+    });
 
-      socket.current.on("join-room", (roomID) => {
-        toast({
-          title: "Enjoy Chatting with your freind",
-          status: "info",
-          duration: 2000,
-          position: "bottom",
-          description: roomID,
-          isClosable: true,
-        });
+    socket.current?.on("join-room", (roomID) => {
+      toast({
+        title: "Enjoy Chatting with your freind",
+        status: "info",
+        duration: 2000,
+        position: "bottom",
+        description: roomID,
+        isClosable: true,
       });
+    });
 
-      socket.current.on("room-already", (roomID) => {
-        toast({
-          title: "Enjoy Chatting ",
-          status: "info",
-          duration: 2000,
-          position: "bottom",
-          description: roomID,
-          isClosable: true,
-        });
-        socket.current.emit("join-room", roomID);
+    socket.current?.on("room-already", (roomID) => {
+      toast({
+        title: "Enjoy Chatting ",
+        status: "info",
+        duration: 2000,
+        position: "bottom",
+        description: roomID,
+        isClosable: true,
       });
+      socket.current.emit("join-room", roomID);
+    });
 
-      socket.current.on("room-joined", (roomID) => {
-        room.current = roomID;
-      });
-    }
+    socket.current?.on("room-joined", (roomID) => {
+      room.current = roomID;
+    });
+
+    socket.current?.on("files-uploaded", () => {
+      console.log("Files Uploaded");
+      const newArr = [...messages];
+      newArr[newArr.length - 1].files = resFiles.files;
+      setMessages(newArr);
+    });
 
     return () => {
       if (socket.current) {
         // console.log("Abhi zinda hu");
-        socket.current.off("new-message");
-        socket.current.off("room-already");
-        socket.current.off("room-joined");
-        socket.current.off("join-room");
+        socket.current?.off("new-message");
+        socket.current?.off("room-already");
+        socket.current?.off("room-joined");
+        socket.current?.off("join-room");
       }
     };
   }, [socket.current]);
 
   useLayoutEffect(() => {
-    if (chatRef.current) {
+    if (isFetching.current) {
+      chatRef.current.scrollTop =
+        chatRef.current.scrollHeight - chatPrvsHght.current;
+      isFetching.current = false;
+    } else {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
-  }, [messages]);
+    chatPrvsHght.current = chatRef.current.scrollHeight;
+  }, [messages?.length]);
 
   useLayoutEffect(() => {
-    let width = window.innerWidth;
-    if (width < 640) {
-      if (show) {
-        animations[0].start({
-          opacity: 1,
-          x: 0,
-          transition: { duration: 1, ease: "circInOut", type: "spring" },
-        });
-        animations[1].start({
-          y: 0,
-          transition: {
-            duration: 1,
-            ease: "circInOut",
-            type: "spring",
-            delay: 1.1,
-          },
-        });
-      } else {
-        animations[1].start({
-          y: "-150%",
-          transition: {
-            duration: 0.6,
-            ease: "circInOut",
-            type: "spring",
-          },
-        });
-        animations[0].start({
-          opacity: 0,
-          x: "100%",
-          delay: 0.8,
-          transition: { duration: 0.6, ease: "circInOut", type: "spring" },
-        });
-      }
+    if (show) {
+      // console.log("Called show");
+      animations[0].start({
+        opacity: 1,
+        x: 0,
+        transition: { duration: 1, ease: "circInOut", type: "spring" },
+      });
+      animations[1].start({
+        y: 0,
+        transition: {
+          duration: 1,
+          ease: "circInOut",
+          type: "spring",
+          delay: 1.1,
+        },
+      });
+    } else {
+      console.log("Called not show");
+      animations[1].start({
+        y: "-150%",
+        transition: {
+          duration: 0.6,
+          ease: "circInOut",
+          type: "spring",
+        },
+      });
+      animations[0].start({
+        opacity: 0,
+        x: "100%",
+        delay: 0.8,
+        transition: { duration: 0.6, ease: "circInOut", type: "spring" },
+      });
     }
-  }, [show]);
+
+    if (docsModal) {
+      animations[2].start({
+        y: 0,
+        scale: 1,
+        transition: {
+          duration: 0.4,
+          delay: 0.2,
+          ease: "ease-in-out",
+          type: "spring",
+        },
+      });
+    } else {
+      animations[2].start({
+        y: "20%",
+        scale: 0,
+        transition: {
+          duration: 0.4,
+          delay: 0.2,
+          ease: "ease-in-out",
+          type: "spring",
+        },
+      });
+    }
+
+    if (loading) {
+      animations[4].start({
+        y: "4rem",
+        transition: { duration: 0.7, ease: "backOut" },
+      });
+      animations[5].start({
+        rotate: [0, 360],
+        transition: { duration: 0.5, repeat: Infinity, ease: "linear" },
+      });
+    } else {
+      animations[5].stop();
+      animations[4].start({
+        y: 0,
+        transition: { duration: 0.5, ease: "backIn" },
+      });
+    }
+  }, [show, docsModal, loading]);
 
   function handleBack(e) {
     navigate("/");
@@ -252,6 +383,13 @@ const ChatBox = () => {
   function handleClose(e) {
     e.stopPropagation();
     setShow(false);
+  }
+
+  function hndleFileDrgrCls(e) {
+    e.stopPropagation();
+    setShowFilesDragger(false);
+    setMessage((prev) => ({ ...prev, files: [] }));
+    console.log("Called");
   }
 
   async function handleAddToFav(e, action) {
@@ -303,17 +441,81 @@ const ChatBox = () => {
     );
   }
 
-  // console.log(messages);
+  async function docsModalHandler() {
+    setDocsModal(!docsModal);
+  }
 
-  // console.log("Current Room: ", room.current);
+  function handleFileInput(e) {
+    const reader = new FileReader();
 
+    const file = e.target.files[0];
+
+    if (file.type.startsWith("image/")) {
+      formData.current.append(`images`, file);
+      reader.readAsDataURL(file);
+
+      reader.onload = (e) => {
+        setMessage((prev) => ({
+          ...prev,
+          files: [
+            ...prev.files,
+            { name: file.name, data: reader.result, file },
+          ],
+        }));
+      };
+    } else {
+      formData.current.append(`docs`, file);
+      setMessage((prev) => ({
+        ...prev,
+        files: [...prev.files, { name: file.name, data: file.type, file }],
+      }));
+    }
+  }
+
+  async function openFilesDragger(e) {
+    // filesDragger.current.style.display = "flex";
+    setShowFilesDragger(true);
+  }
+
+  async function handleForm(e) {
+    e.preventDefault();
+    const files = await sendMessage(e, message);
+
+    const newArr = [...messages];
+    newArr[newArr.length - 1].files = files;
+    setMessages(newArr);
+  }
+
+  // console.log("Messages: ", messages);
+
+  useEffect(() => {
+    const chatDiv = chatRef.current;
+    chatDiv.addEventListener("scroll", scrollHandler);
+    return () => {
+      chatDiv.removeEventListener("scroll", scrollHandler);
+    };
+  }, []);
+
+  const scrollHandler = async (e) => {
+    if (fetchRef.current !== null) {
+      clearTimeout(fetchRef.current);
+    }
+    if (chatRef.current.scrollTop === 0 && !loading) {
+      fetchRef.current = setTimeout(() => {
+        chatFetchingHelper();
+      }, 3000);
+      setLoading(true);
+    }
+  };
+
+  let orgDay;
   return (
     <div
       className=" text-white w-full h-full flex justify-center  flex-col relative z-[99] bg-[#1f1f22] sm:bg-transparent overflow-hidden"
       // style={{ background: "rgba(0,0,0,0.5)" }}
     >
-      <header className=" bg-[#1F1F22] w-full flex justify-between items-center h-20 border-b-[1px] border-b-gray-600 sm:border-none ">
-        <nav className=" flex justify-between xl:justify-start items-center gap-x-6 h-full overflow-hidden w-5/6 xl:w-1/2">
+      <header className=" bg-[#1F1F22] w-full flex justify-between items-center h-20 border-b-[1px] border-b-gray-600 sm:border-none relative z-10 ">
+        <nav className=" flex justify-between xl:justify-start items-center gap-x-6 h-full overflow-hidden w-5/6 sm:w-3/6 xl:w-1/2">
           <div
             className=" h-full flex justify-end items-center w-[11%]  xl:w-[7%] 2xl:w-[6%]  relative -left-[2px] "
             onClick={handleBack}
@@ -383,7 +585,7 @@ const ChatBox = () => {
             </div>
           </div>
         </nav>
-        <nav className=" flex justify-end items-center pr-5 gap-x-3 w-1/2">
+        <nav className=" flex justify-end items-center pr-5 gap-x-3 w-1/3 sm:w-1/2">
           <button
             onClick={showOpener}
             className={` sm:hidden relative ${show ? "z-[98]" : "z-[100]"}`}
@@ -458,24 +660,173 @@ const ChatBox = () => {
           </button>
         </motion.div>
       </header>
-      <div className=" w-full h-full overflow-y-auto">
+      <div className=" w-full h-full overflow-y-auto" ref={chatParent}>
+        <motion.div
+          initial={{ y: 0 }}
+          animate={animations[4]}
+          className="overflow-hidden absolute   px-2 py-2 rounded-md text-slate-400 bg-[#404040]  top-8 right-1/2 flex items-center justify-center -translate-x-[50%] z-[9]"
+        >
+          <motion.div initial={{ rotate: 0 }} animate={animations[5]}>
+            <div className=" rounded-full bg-[#404040] border-[rgba(253,113,112,1)] border-2 h-[25px] w-[25px]">
+              {" "}
+            </div>
+            <div className=" absolute top-4  bg-[#404040]  h-[25px] w-[25px] rounded-full">
+              {" "}
+            </div>
+          </motion.div>
+        </motion.div>
         <div
           className=" px-5 py-3 w-full h-full relative flex flex-col gap-y-3 overflow-y-auto"
           ref={chatRef}
         >
+          {" "}
           {messages &&
-            messages.map((chat) => (
-              <ChatCard chat={chat} anotherUser={anotherUser} key={chat._id} />
-            ))}
+            messages.map((chat) => {
+              let date = new Date(chat.createdAt);
+              let tempDay = new Intl.DateTimeFormat("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              }).format(date);
+
+              const showDateHeader = orgDay !== tempDay; // if different, show it
+              orgDay = tempDay;
+
+              return (
+                <React.Fragment key={chat._id}>
+                  <div className="  flex justify-center items-center w-full">
+                    {" "}
+                    {showDateHeader && (
+                      <div className="p-1 px-2 rounded-lg bg-stone-700 text-white text-[10px] font-semibold">
+                        {tempDay}
+                      </div>
+                    )}
+                  </div>
+
+                  <ChatCard
+                    chat={chat}
+                    anotherUser={anotherUser}
+                    key={chat._id}
+                  />
+                </React.Fragment>
+              );
+            })}
         </div>
       </div>
       <div className=" w-full  flex justify-center items-center mb-2 sm:mb-4 pt-1 sm:pt-3 relative bottom-1 sm:bottom-3 border-t-[1px] md:border-none border-t-gray-600">
         <form
-          onSubmit={sendMessage}
-          className=" flex justify-center items-center w-[90%] sm:w-10/12 gap-x-3"
+          id="msg_form"
+          onSubmit={handleForm}
+          className=" flex justify-center items-center w-[90%] sm:w-10/12 gap-x-3 relative"
         >
-          <div className=" w-[90%] sm:w-4/5 bg-[#1F1F22] rounded-lg flex justify-center items-center px-2 py-1 shadow-lg md:shadow-sm  shadow-[rgba(255,255,255,0.1)]">
-            <span>
+          <div className=" w-[90%] sm:w-4/5 bg-[#1F1F22] rounded-lg flex justify-center items-center px-2 py-1 shadow-lg md:shadow-sm  shadow-[rgba(255,255,255,0.1)] relative">
+            <div
+              // initial={{ height: "15vmax" }}
+              // animate={{ height: "9vmax" }}
+              // transition={{ duration: 2, delay: 2 }}
+              className={`${
+                message?.files?.length > 0 ? "flex" : "hidden"
+              } absolute bg-stone-800 rounded-md left-4 bottom-14 p-2 pt-4   ${
+                showfilesDragger ? "w-9/12" : "w-auto"
+              }`}
+            >
+              {/* <div
+                ref={filesDragger}
+                className={` gap-x-3 gap-y-4 p-3 w-full ${
+                  showfilesDragger ? "flex " : "grid"
+                }  ${
+                  message.files.length > 3 ? "grid-cols-2" : " grid-cols-3"
+                } `}
+              > */}
+              <div
+                ref={filesDragger}
+                className={` gap-x-3 gap-y-4 p-3 w-full min-w-[37vmax] flex overflow-x-auto`}
+              >
+                {message?.files?.map((file, idx) => {
+                  if (!showfilesDragger && idx <= 3) {
+                    if (file.data.startsWith("application/")) {
+                      return (
+                        <div
+                          key={file.name}
+                          className="h-[100px] w-[100px] rounded-md text-center bg-emerald-600 text-gray-300 text-[12px] font-medium flex justify-center items-center"
+                        >
+                          <span>{file.data.split("/")[1].toUpperCase()}</span>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div
+                          key={file.name}
+                          className=" flex justify-center items-center h-[100px] w-[100px] relative bg-[rgba(1,1,1,0.8)] rounded-md"
+                          onClick={(e) => {
+                            if (!showfilesDragger) {
+                              openFilesDragger(e);
+                            }
+                          }}
+                        >
+                          {!showfilesDragger &&
+                            idx === 3 &&
+                            message?.files?.length > 4 && (
+                              <span className=" bg-[rgba(1,1,1,0.7)] text-gray-400 font-normal text-[14px] absolute ">
+                                {message.files.length - (idx + 1)} more
+                              </span>
+                            )}
+                          <img
+                            className={` h-full w-full rounded-md ${
+                              !showfilesDragger &&
+                              idx === 3 &&
+                              message?.files?.length > 4 &&
+                              "opacity-10"
+                            } object-cover object-center`}
+                            src={file.data}
+                          />
+                        </div>
+                      );
+                    }
+                  } else {
+                    if (file.data.startsWith("application/")) {
+                      return (
+                        <div
+                          key={file.name}
+                          className="h-[100px] w-[100px] rounded-md text-center bg-emerald-600 text-gray-300 text-[12px] font-medium flex justify-center items-center"
+                        >
+                          <span>{file.data.split("/")[1].toUpperCase()}</span>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div className=" flex justify-center items-center h-[100px] w-[100px] relative bg-[rgba(1,1,1,0.8)] rounded-md">
+                          <img
+                            key={file.name}
+                            className={` h-full w-full rounded-md  object-cover object-center`}
+                            src={file.data}
+                          />
+                        </div>
+                      );
+                    }
+                  }
+                })}
+              </div>
+              <button
+                className=" absolute right-2 -top-1 outline-none border-none"
+                style={{ outline: "none" }}
+                id="closeDragger"
+                onClick={hndleFileDrgrCls}
+                type="button"
+              >
+                <FontAwesomeIcon
+                  icon={faClose}
+                  className=" h-[18px] w-[18px] text-white"
+                />
+              </button>
+            </div>
+            <span
+              onClick={(e) => {
+                console.log("Called Smile");
+                e.stopPropagation();
+                setLoading(!loading);
+              }}
+            >
               <FontAwesomeIcon icon={faSmile} className=" text-stone-500" />
             </span>
             <input
@@ -485,9 +836,54 @@ const ChatBox = () => {
               placeholder="send message"
               onChange={messageHandler}
             />
-            <span>
-              <FontAwesomeIcon icon={faPaperclip} className=" text-stone-500" />
-            </span>
+            <div className=" relative">
+              <motion.div
+                initial={{ y: "20%", scale: 0 }}
+                animate={animations[2]}
+                className=" flex justify-between items-center text-stone-500 gap-x-4 absolute py-3  p-4 rounded-md bg-stone-800 bottom-12 right-3 shadow-md"
+              >
+                <div className=" cursor-pointer">
+                  <input
+                    className=" hidden"
+                    id="docs_input"
+                    name="docs"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.ppt,.pptx,.odt,.ods,.odp"
+                    onChange={handleFileInput}
+                  />
+                  <label
+                    htmlFor="docs_input"
+                    className="flex flex-col items-center cursor-pointer"
+                  >
+                    <FontAwesomeIcon icon={faFile} />
+                    <span className=" text-[12px]">document</span>
+                  </label>
+                </div>
+                <div className=" cursor-pointer">
+                  <input
+                    className=" hidden"
+                    id="image_input"
+                    name="image"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.gif,.bmp,.svg,.webp"
+                    onChange={handleFileInput}
+                  />
+                  <label
+                    htmlFor="image_input"
+                    className="flex flex-col items-center cursor-pointer"
+                  >
+                    <FontAwesomeIcon icon={faImage} />
+                    <span className=" text-[12px]">image</span>
+                  </label>
+                </div>
+              </motion.div>
+              <span className=" cursor-pointer" onClick={docsModalHandler}>
+                <FontAwesomeIcon
+                  icon={faPaperclip}
+                  className=" text-stone-500"
+                />
+              </span>
+            </div>
           </div>
           <button
             type="submit"

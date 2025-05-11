@@ -1,15 +1,11 @@
-import React, { lazy, Suspense, useContext, useEffect } from "react";
+import { faGear } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useEffect } from "react";
 import SideBarHeader from "./SideBarHeader";
 import UserSearch from "./UserSearch";
 import Users from "./Users";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGear } from "@fortawesome/free-solid-svg-icons";
-import { Context } from "../context/StateProvider";
-import Loader from "./Loader";
 
 const SideBar = () => {
-  let { user } = useContext(Context);
-
   const dummy = [
     {
       id: 1,
@@ -73,7 +69,7 @@ const SideBar = () => {
     },
   ];
 
-  // console.log("Sidebar Rendered");
+  console.log("Sidebar Rendered");
 
   useEffect(() => {
     document.addEventListener("click", listener);
@@ -88,51 +84,18 @@ const SideBar = () => {
 
   return (
     <div className=" h-full w-full md:w-4/6 lg:w-6/12 xl:w-2/6 bg-[#1F1F22] absolute sm:relative z-50">
-      {user ? (
-        <div className=" flex flex-col justify-start items-start h-full w-full px-1 relative">
-          <SideBarHeader user={user} />
-          <div className="py-3 w-full">
-            <UserSearch />
-          </div>
-          <div className=" w-full flex  h-full overflow-hidden ">
-            <Users />
-          </div>
-          <div className=" absolute bottom-4 right-3 p-3 px-4 rounded-full bg-stone-700">
-            <FontAwesomeIcon icon={faGear} className=" text-white" />
-          </div>
+      <div className=" flex flex-col justify-start items-start h-full w-full px-1 relative">
+        <SideBarHeader />
+        <div className="py-3 w-full">
+          <UserSearch />
         </div>
-      ) : (
-        <div className=" flex flex-col justify-start items-start h-full w-full px-1 relative">
-          <div className=" w-full py-2 px-3 border-b-[1px] border-gray-600">
-            <div className="  w-full flex items-center gap-x-3">
-              <span className=" h-12 w-16 rounded-full skeleton"></span>
-              <div className="w-full flex flex-col gap-y-1">
-                <span className=" h-2 w-16 skeleton rounded-md"></span>
-                <span className=" h-2 w-14 skeleton rounded-md"></span>
-                <span className=" h-2 w-20 skeleton rounded-md"></span>
-              </div>
-            </div>
-          </div>
-          <div className=" w-full flex justify-around items-center py-6 border-b-[1px] border-gray-600">
-            <div className=" w-20 h-3 rounded-md skeleton"></div>
-            <div className=" w-20 h-3 rounded-md skeleton"></div>
-            <div className=" w-20 h-3 rounded-md skeleton"></div>
-          </div>
-          <div className=" w-full flex flex-col  h-full overflow-hidden ">
-            {Array.from({ length: 3 }).map((item, idx) => (
-              <div className=" py-3 px-5">
-                <div className=" flex items-center gap-x-3 w-full">
-                  <span className=" h-10 w-12 rounded-full skeleton"></span>
-                  <div className=" flex flex-col gap-y-1 w-full">
-                    <span className=" h-2 rounded-md w-20 skeleton"></span>
-                    <span className=" h-1 rounded-md w-12 skeleton"></span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className=" w-full flex  h-full overflow-hidden ">
+          <Users />
         </div>
-      )}
+        <div className=" absolute bottom-4 right-3 p-3 px-4 rounded-full bg-stone-700">
+          <FontAwesomeIcon icon={faGear} className=" text-white" />
+        </div>
+      </div>
     </div>
   );
 };
