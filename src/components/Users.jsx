@@ -14,7 +14,10 @@ import UsersContainer from "./UsersContainer";
 
 const Users = () => {
   const [activeBar, setActiveBar] = useState(1);
+  const [isFetched, setIsFetched] = useState(false);
+
   const navigate = useNavigate();
+
   let { friends, getFriendsProfiles, onlineUsers, socket } =
     useContext(Context);
 
@@ -32,7 +35,6 @@ const Users = () => {
   const actvUsrs = useRef([]);
   const favUsrs = useRef([]);
   const frndUsrs = useRef([]);
-  const isFetched = useRef(false);
 
   const animationHandler = useCallback(() => {
     if (activeBar === 1) {
@@ -102,15 +104,18 @@ const Users = () => {
   }, [activeBar]);
 
   useEffect(() => {
-    let favorite = friends
-      ?.filter((fr) => fr.isFavourite === true)
-      .map((fr) => fr.friend_id);
-
     const fetchProfiles = async () => {
-      isFetched.current = false;
-      if (onlineUsers.length > 0) {
+      setIsFetched(false);
+
+      let favorite = friends
+        ?.filter((fr) => fr.isFavourite === true)
+        .map((fr) => fr.friend_id);
+
+      if (onlineUsers?.length > 0) {
         const activeProfiles = await getFriendsProfiles(onlineUsers);
         actvUsrs.current = activeProfiles.chats;
+      } else {
+        actvUsrs.current = [];
       }
       if (favorite.length > 0) {
         const favouriteProfiles = await getFriendsProfiles(favorite);
@@ -122,19 +127,20 @@ const Users = () => {
         frndUsrs.current = friendsProfiles.chats;
       }
     };
-
-    fetchProfiles()
-      .then(() => {
-        isFetched.current = true;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [getFriendsProfiles, onlineUsers?.length]);
+    if (friends?.length > 0) {
+      fetchProfiles()
+        .then(() => {
+          setIsFetched(true);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  }, [getFriendsProfiles, onlineUsers?.length, friends?.length]);
 
   useLayoutEffect(() => {
     animationHandler();
-  }, [activeBar, animationHandler]);
+  }, [activeBar, animationHandler, isFetched]);
 
   useEffect(() => {
     socket.current?.on("old-messages", (msgs) => {
@@ -155,16 +161,7 @@ const Users = () => {
     });
   }, []);
 
-  // if (!actvUsrs.current?.length || !favUsrs.current || !frndUsrs.current) {
-  //   return (
-  //     <div>
-  //       {" "}
-  //       <span className=" text-2xl">No Users</span>
-  //     </div>
-  //   );
-  // }
-
-  if (isFetched.current === false) {
+  if (!isFetched) {
     return (
       <div className=" w-full flex flex-col  h-full overflow-hidden ">
         {Array.from({ length: 3 }).map((item, idx) => (

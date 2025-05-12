@@ -133,7 +133,7 @@ const ChatBox = () => {
   }, [friends?.length]);
 
   /* Abhi jo production me issue arha hai unlimited loading ka like pura 
-  container loading show krta hai isFteched ki wajah se */
+  container loading show krta hai isFetched ki wajah se */
 
   function handleAddFriend() {
     addToFriends(anotherUser._id);

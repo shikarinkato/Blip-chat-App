@@ -6,11 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { Context } from "../context/StateProvider";
 import { useToast } from "@chakra-ui/toast";
 
-const UserSearch = () => {
+const UserSearch = ({ onlineUsers, searchUser }) => {
   const [show, setShow] = useState(false);
   const [result, setResult] = useState([]);
   const navigate = useNavigate();
-  const { searchUser, onlineUsers } = useContext(Context);
   let resultBox = useAnimation();
   let input = useRef();
   const toast = useToast();
@@ -83,6 +82,15 @@ const UserSearch = () => {
     setShow(false);
     setResult("");
     input.current.value = "";
+  }
+
+  if (!onlineUsers) {
+    return (
+      <div className=" w-full flex justify-around items-center py-6 border-b-[1px] border-gray-600">
+        <div className=" w-52 h-6 rounded-md skeleton"></div>
+        <div className=" w-20 h-3 rounded-md skeleton"></div>
+      </div>
+    );
   }
 
   return (

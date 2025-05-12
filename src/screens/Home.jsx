@@ -3,7 +3,8 @@ import React, { useContext, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import BG from "../components/BG.jsx";
 import SideBar from "../components/SideBar.jsx";
-import { Context } from "../context/StateProvider";
+import { Context, socketServer } from "../context/StateProvider";
+import { io } from "socket.io-client";
 
 const Home = () => {
   const toast = useToast();
@@ -72,6 +73,12 @@ const Home = () => {
       // Validate Auth
       if (token) {
         // Authenticated flow
+        socket.current = io(`${socketServer}`, {
+          query: { token },
+          reconnection: true,
+          reconnectionDelay: 1000,
+          timeout: 60000,
+        });
 
         // setIsAuthenticated(true);
 
@@ -119,19 +126,20 @@ const Home = () => {
 
   useEffect(() => {
     const online = async () => {
+      // console.log("Friends: ", friends);
       if (socket.current && friends?.length > 0) {
         // console.log("Called");
         // if (onlineUsers.length <= 0) {
         // }
         socket.current.emit("call-update-users");
 
-        socket.current.on("update-active-users", (arr, callback) => {
-          console.log("Listening updated users: ", arr);
+        // console.log("Online Users: ", onlineUsers);
+        socket.current.once("update-active-users", (arr, callback) => {
+          // console.log("Listening updated users: ", arr);
           let online = friends
             .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
             .filter((fr) => fr !== null);
 
-          // console.log("Online Users: ", onlineUsers);
           // console.log("Online In Home: ", online);
           // console.log("Friends: ", friends);
 
@@ -171,10 +179,7 @@ const Home = () => {
           fallback={
             <div className=" flex flex-col justify-start items-start h-full md:w-4/6 lg:w-6/12 xl:w-2/6 px-1 relative 2xl:min-w-[25vmax]">
               
-              <div className=" w-full flex justify-around items-center py-6 border-b-[1px] border-gray-600">
-                <div className=" w-52 h-6 rounded-md skeleton"></div>
-                <div className=" w-20 h-3 rounded-md skeleton"></div>
-              </div>
+              
              
             </div>
           }
