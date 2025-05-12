@@ -132,12 +132,8 @@ const ChatBox = () => {
     chatFetchingHelper();
   }, [friends?.length]);
 
-  // useEffect(() => {
-  //   if (chat && chat.messages && (!messages || messages.length === 0)) {
-  //     // setMessages(chat?.messages[0]?.pgntdRlst[0]);
-  //     setMessages((prev) => [...chat?.messages[0]?.pgntdRlst, ...prev]);
-  //   }
-  // }, [chat, messages?.length]);
+  /* Abhi jo production me issue arha hai unlimited loading ka like pura 
+  container loading show krta hai isFteched ki wajah se */
 
   function handleAddFriend() {
     addToFriends(anotherUser._id);
