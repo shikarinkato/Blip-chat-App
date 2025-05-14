@@ -1,18 +1,20 @@
+import { useToast } from "@chakra-ui/toast";
 import { faAdd, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion, useAnimation } from "framer-motion";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Context } from "../context/StateProvider";
-import { useToast } from "@chakra-ui/toast";
+import { headerOptions, serverUrl } from "../context/StateProvider";
 
-const UserSearch = ({ onlineUsers, searchUser }) => {
+const UserSearch = () => {
   const [show, setShow] = useState(false);
   const [result, setResult] = useState([]);
   const navigate = useNavigate();
   let resultBox = useAnimation();
   let input = useRef();
   const toast = useToast();
+
+  console.log("User Search Rendered");
 
   function handleAnimaton() {
     if (show) {
@@ -63,16 +65,39 @@ const UserSearch = ({ onlineUsers, searchUser }) => {
       clearTimeout(current);
     }
     current = setTimeout(async () => {
-      let res = await searchUser(e.target.value);
-      if (res.success === true) {
-        setResult(res.users);
-      }
+      searchUser(e.target.value);
     }, 400);
   }
 
   useEffect(() => {
     handleAnimaton();
   }, [show]);
+
+  const searchUser = async (search) => {
+    try {
+      let res = await fetch(`${serverUrl}/user/search-user?search=${search}`, {
+        method: "GET",
+        headers: { ...headerOptions },
+      });
+
+      res = await res.json();
+
+      if (res.success == true) {
+        setResult(res?.users);
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (error) {
+      toast({
+        title: `${error.message}`,
+        status: "error",
+        isClosable: true,
+        duration: 2000,
+        position: "bottom",
+      });
+      return null;
+    }
+  };
 
   async function handleClick(id) {
     let anotheruser = result.filter((user) => user._id === id);
@@ -82,15 +107,6 @@ const UserSearch = ({ onlineUsers, searchUser }) => {
     setShow(false);
     setResult("");
     input.current.value = "";
-  }
-
-  if (!onlineUsers) {
-    return (
-      <div className=" w-full flex justify-around items-center py-6 border-b-[1px] border-gray-600">
-        <div className=" w-52 h-6 rounded-md skeleton"></div>
-        <div className=" w-20 h-3 rounded-md skeleton"></div>
-      </div>
-    );
   }
 
   return (
@@ -121,7 +137,7 @@ const UserSearch = ({ onlineUsers, searchUser }) => {
         initial={{ height: 0 }}
         animate={resultBox}
       >
-        {result.length < 1 ? (
+        {result?.length < 1 ? (
           <span className=" pt-4">No result found</span>
         ) : (
           <div className=" flex justify-start items-center flex-col gap-y-2 w-full mt-3">
@@ -136,9 +152,6 @@ const UserSearch = ({ onlineUsers, searchUser }) => {
                 >
                   <div className=" flex justify-start items-center gap-x-5 text-neutral-400 w-full bg-stone-600 p-2 rounded-md">
                     <div className=" rounded-full  relative">
-                      {onlineUsers.includes(user._id) == "active" && (
-                        <span className=" absolute p-[0.3rem] bg-green-500 rounded-full inline-block -right-1 -top-1 z-[99]"></span>
-                      )}
                       <img
                         src={
                           !user.pic

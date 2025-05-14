@@ -3,8 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SideBarHeader from "./SideBarHeader";
 import UserSearch from "./UserSearch";
 import Users from "./Users";
-import React, { useContext } from "react";
-import { Context } from "../context/StateProvider";
+import React from "react";
 
 const SideBar = () => {
   // const dummy = [
@@ -70,8 +69,7 @@ const SideBar = () => {
   //   },
   // ];
 
-  // console.log("Sidebar Rendered");
-  const { searchUser, onlineUsers } = useContext(Context);
+  console.log("Sidebar Rendered");
 
   // useEffect(() => {
   //   document.addEventListener("click", listener);
@@ -85,11 +83,11 @@ const SideBar = () => {
   // }
 
   return (
-    <div className=" h-full w-full md:w-4/6 lg:w-6/12 xl:w-2/6 bg-[#1F1F22] absolute sm:relative z-50">
+    <div className=" h-full w-full  sm:w-3/5 lg:w-2/3 xl:w-2/6 bg-[#1F1F22] absolute sm:relative z-50">
       <div className=" flex flex-col justify-start items-start h-full w-full px-1 relative">
         <SideBarHeader />
         <div className="py-3 w-full">
-          <UserSearch onlineUsers={onlineUsers} searchUser={searchUser} />
+          <UserSearch />
         </div>
         <div className=" w-full flex  h-full overflow-hidden ">
           <Users />

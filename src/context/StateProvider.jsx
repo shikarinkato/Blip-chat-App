@@ -1,5 +1,12 @@
 import { useToast } from "@chakra-ui/toast";
-import React, { createContext, useRef, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useRef,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 export let Context = createContext();
 import { io } from "socket.io-client";
 
@@ -7,12 +14,12 @@ import { io } from "socket.io-client";
 let token = JSON.parse(localStorage.getItem("token"));
 
 export let serverUrl;
-// serverUrl = "http://localhost:3000/api/v2";
-serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
+serverUrl = "http://localhost:3000/api/v2";
+// serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
 
 export let socketServer;
-// socketServer = "http://localhost:3000";
-socketServer = "https://blip-chat-backend.onrender.com";
+socketServer = "http://localhost:3000";
+// socketServer = "https://blip-chat-backend.onrender.com";
 export let headerOptions = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${token}`,
@@ -30,15 +37,32 @@ function StateProvider({ children }) {
   let socket = useRef(null);
   let isReconnect = useRef(false);
 
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-   
-  //   }
-  //   console.log(isAuthenticated);
-  // }, [isAuthenticated]);
-
-  // console.log("Called StateProvider");
-  // console.log("Socket: ",socket.current);
+  const value = useMemo(
+    () => ({
+      isLogin,
+      setIsLogin,
+      isAuthenticated,
+      setIsAuthenticated,
+      friends,
+      setFriends,
+      user,
+      setUser,
+      onlineUsers,
+      setOnlineUsers,
+      backgroundMsgs,
+      setBackgroundMsgs,
+      socket,
+    }),
+    [
+      isLogin,
+      isAuthenticated,
+      friends,
+      user,
+      onlineUsers,
+      backgroundMsgs,
+      socket.current,
+    ]
+  );
 
   const login = async (email, password) => {
     try {
@@ -173,7 +197,7 @@ function StateProvider({ children }) {
     }
   };
 
-  const getFriendsProfiles = async (friends) => {
+  const getFriendsProfiles = useCallback(async (friends) => {
     try {
       let res = await fetch(`${serverUrl}/user/friends/profiles`, {
         method: "PUT",
@@ -214,38 +238,12 @@ function StateProvider({ children }) {
       });
       return null;
     }
-  };
+  }, []);
 
-  const searchUser = async (search) => {
-    try {
-      let res = await fetch(`${serverUrl}/user/search-user?search=${search}`, {
-        method: "GET",
-        headers: { ...headerOptions },
-      });
-
-      res = await res.json();
-
-      if (res.success == true) {
-        return res;
-      } else {
-        throw new Error(res.message);
-      }
-    } catch (error) {
-      toast({
-        title: `${error.message}`,
-        status: "error",
-        isClosable: true,
-        duration: 2000,
-        position: "bottom",
-      });
-      return null;
-    }
-  };
-
-  const fetchChats = async (anotherUser, skip) => {
+  const fetchChats = useCallback(async (anotherUser, skip) => {
     try {
       let res = await fetch(
-        `${serverUrl}/chats/friends/${anotherUser}?&skip=${skip}&limit=10`,
+        `${serverUrl}/chats/friends/${anotherUser}?&skip=${skip}&limit=15`,
         {
           method: "GET",
           headers: { ...headerOptions },
@@ -268,7 +266,7 @@ function StateProvider({ children }) {
       });
       return null;
     }
-  };
+  }, []);
 
   const addToFriends = async (friend_id) => {
     try {
@@ -356,24 +354,23 @@ function StateProvider({ children }) {
   return (
     <Context.Provider
       value={{
-        isLogin,
-        isAuthenticated,
-        friends,
-        onlineUsers,
-        user,
-        socket,
-        backgroundMsgs,
-        setIsLogin,
-        setIsAuthenticated,
-        setOnlineUsers,
-        setFriends,
-        setBackgroundMsgs,
+        isLogin: value.isLogin,
+        isAuthenticated: value.isAuthenticated,
+        friends: value.friends,
+        onlineUsers: value.onlineUsers,
+        user: value.user,
+        socket: value.socket,
+        backgroundMsgs: value.backgroundMsgs,
+        setIsLogin: value.setIsLogin,
+        setIsAuthenticated: value.setIsAuthenticated,
+        setOnlineUsers: value.setOnlineUsers,
+        setFriends: value.setFriends,
+        setBackgroundMsgs: value.setBackgroundMsgs,
         login,
         signUp,
         getAllFriends,
         getProfile,
         getFriendsProfiles,
-        searchUser,
         fetchChats,
         addToFriends,
         createChat,

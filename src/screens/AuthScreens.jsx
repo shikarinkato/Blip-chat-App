@@ -27,7 +27,7 @@ const AuthScreens = () => {
   return (
     <div className=" relative flex items-center justify-center h-screen w-screen overflow-hidden">
       <div className=" flex justify-center items-center h-full w-full md:w-1/2 relative">
-        <div className=" hidden md:flex flex-col items-center justify-center absolute left-1/2  top-1/2 -translate-x-1/2 -translate-y-1/2 z-[999] text-white shadow-lg drop-shadow-lg drop-shadow-purpleGradient">
+        <div className=" hidden md:flex flex-col items-center justify-center absolute left-1/2  top-1/2 -translate-x-1/2 -translate-y-1/2 z-[199] text-white shadow-lg drop-shadow-lg drop-shadow-purpleGradient">
           <div>
             <FontAwesomeIcon
               icon={faMessage}

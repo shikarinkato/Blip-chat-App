@@ -1,14 +1,16 @@
-import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Loader from "./Loader";
-import { Context } from "../context/StateProvider";
 
-const UserCard = ({ anotherUser }) => {
+const UserCard = ({
+  anotherUser,
+  onlineUsers,
+  createChat,
+  backgroundMsgs,
+  setBackgroundMsgs,
+}) => {
   const navigate = useNavigate();
-  const { backgroundMsgs, setBackgroundMsgs } = useContext(Context);
-  const { onlineUsers, createChat, socket } = useContext(Context);
+  // const { backgroundMsgs, setBackgroundMsgs } = useContext(Context);
+  // const { onlineUsers, createChat, socket } = useContext(Context);
   if (anotherUser === null) {
     return (
       <div className=" w-full">
@@ -45,17 +47,6 @@ const UserCard = ({ anotherUser }) => {
     createChat(id);
   }
 
-  useEffect(() => {
-    if (socket.current) {
-      socket.current.on("old-message", (msgs) => {
-        setBackgroundMsgs(msgs);
-      });
-      socket.current.on("new-message-friend", (msgs) => {
-        setBackgroundMsgs((prev) => [...prev, msgs]);
-      });
-    }
-  }, []);
-
   return (
     <div
       className=" w-full px-3"
@@ -86,9 +77,9 @@ const UserCard = ({ anotherUser }) => {
                 anotherUser?.lastMessage?.message.slice(0, 50)}
             </span>
           </div>
-          {backgroundMsgs.length > 0 && (
+          {backgroundMsgs && backgroundMsgs?.length > 0 && (
             <span className="bg-purpleGradient py-1 px-[0.6rem] rounded-full absolute right-20 text-[11px] text-white inline-block">
-              {backgroundMsgs.length}
+              {backgroundMsgs?.length}
             </span>
           )}
           <div>

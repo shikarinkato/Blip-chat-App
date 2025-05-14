@@ -18,8 +18,15 @@ const Users = () => {
 
   const navigate = useNavigate();
 
-  let { friends, getFriendsProfiles, onlineUsers, socket } =
-    useContext(Context);
+  let {
+    friends,
+    getFriendsProfiles,
+    onlineUsers,
+    createChat,
+    backgroundMsgs,
+    setBackgroundMsgs,
+    socket,
+  } = useContext(Context);
 
   const animations = [useAnimation(), useAnimation(), useAnimation()];
 
@@ -126,11 +133,14 @@ const Users = () => {
         const friendsProfiles = await getFriendsProfiles(updatedFriend);
         frndUsrs.current = friendsProfiles.chats;
       }
+
+      // console.log("Done");
     };
     if (friends?.length > 0) {
       fetchProfiles()
         .then(() => {
           setIsFetched(true);
+          // console.log("Fetched");
         })
         .catch((err) => {
           console.error(err);
@@ -143,23 +153,21 @@ const Users = () => {
   }, [activeBar, animationHandler, isFetched]);
 
   useEffect(() => {
-    socket.current?.on("old-messages", (msgs) => {
-      console.log("Old messges ");
-      console.log(msgs);
-    });
-    socket.current?.on("room-joined", (roomID) => {
-      let room = roomID.slice(0, 24);
-      let res = friends.find((fr) => fr.friend_id.toString() === room);
+    socket.current?.on("old-message", lstnOldMsgs);
+    socket.current?.on("new-message-friend", lstnMsgs);
 
-      getFriendsProfiles([res.friend_id])
-        .then((res) =>
-          navigate("/user/" + room, {
-            state: { anotherUser: res.chats[0], roomID },
-          })
-        )
-        .then((err) => console.log(err));
-    });
+    return () => {
+      socket.current?.off("old-message", lstnOldMsgs);
+      socket.current?.off("new-message-friend", lstnMsgs);
+    };
   }, []);
+
+  function lstnMsgs(msgs) {
+    setBackgroundMsgs((prev) => [...prev, msgs]);
+  }
+  function lstnOldMsgs(msgs) {
+    setBackgroundMsgs((prev) => [...prev, msgs]);
+  }
 
   if (!isFetched) {
     return (
@@ -203,6 +211,11 @@ const Users = () => {
           <UsersContainer
             zeroTitle="0 Online Friends"
             users={actvUsrs.current}
+            backgroundMsgs={backgroundMsgs}
+            setBackgroundMsgs={setBackgroundMsgs}
+            onlineUsers={onlineUsers}
+            createChat={createChat}
+            socket={socket}
           />
         </motion.div>
         <motion.div
@@ -212,6 +225,11 @@ const Users = () => {
         >
           <UsersContainer
             users={favUsrs.current}
+            backgroundMsgs={backgroundMsgs}
+            setBackgroundMsgs={setBackgroundMsgs}
+            onlineUsers={onlineUsers}
+            createChat={createChat}
+            socket={socket}
             zeroTitle="You have 0 favorite friend"
           />
         </motion.div>
@@ -223,6 +241,10 @@ const Users = () => {
           <UsersContainer
             zeroTitle="You have 0 Friends"
             users={frndUsrs.current}
+            backgroundMsgs={backgroundMsgs}
+            onlineUsers={onlineUsers}
+            createChat={createChat}
+            socket={socket}
           />
         </motion.div>
       </div>

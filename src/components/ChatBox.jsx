@@ -104,6 +104,7 @@ const ChatBox = () => {
   const chatFetchingHelper = useCallback(() => {
     if (friends.some((fr) => fr.friend_id === userId)) {
       if (hasMore.current === true) {
+        console.log("Called");
         fetchChats(userId, next.current)
           .then((res) => {
             setMessages((prev) => [
@@ -223,8 +224,8 @@ const ChatBox = () => {
 
     return () => {
       // clearTimeout(timer);
-      socket.current.off("initiate-chat");
-      socket.current.off("reinitiate-chat");
+      socket.current?.off("initiate-chat");
+      socket.current?.off("reinitiate-chat");
     };
   }, [user, socket.current]);
 
@@ -243,20 +244,20 @@ const ChatBox = () => {
         status: "info",
         duration: 2000,
         position: "bottom",
-        description: roomID,
+        description: `Room ID: ${roomID}`,
         isClosable: true,
       });
     });
 
     socket.current?.on("room-already", (roomID) => {
-      toast({
-        title: "Enjoy Chatting ",
-        status: "info",
-        duration: 2000,
-        position: "bottom",
-        description: roomID,
-        isClosable: true,
-      });
+      // toast({
+      //   title: "Enjoy Chatting ",
+      //   status: "info",
+      //   duration: 2000,
+      //   position: "bottom",
+      //   description: roomID,
+      //   isClosable: true,
+      // });
       socket.current.emit("join-room", roomID);
     });
 
@@ -278,6 +279,8 @@ const ChatBox = () => {
         socket.current?.off("room-already");
         socket.current?.off("room-joined");
         socket.current?.off("join-room");
+        socket.current?.off("files-uploaded");
+        socket.current?.off("leave-room");
       }
     };
   }, [socket.current]);
@@ -494,9 +497,9 @@ const ChatBox = () => {
 
   useEffect(() => {
     const chatDiv = chatRef.current;
-    chatDiv.addEventListener("scroll", scrollHandler);
+    chatDiv?.addEventListener("scroll", scrollHandler);
     return () => {
-      chatDiv.removeEventListener("scroll", scrollHandler);
+      chatDiv?.removeEventListener("scroll", scrollHandler);
     };
   }, []);
 
@@ -504,10 +507,12 @@ const ChatBox = () => {
     if (fetchRef.current !== null) {
       clearTimeout(fetchRef.current);
     }
+
     if (chatRef.current.scrollTop === 0 && !loading) {
+      console.log(fetchRef.current);
       fetchRef.current = setTimeout(() => {
         chatFetchingHelper();
-      }, 3000);
+      }, 500);
       setLoading(true);
     }
   };
@@ -518,10 +523,10 @@ const ChatBox = () => {
       className=" text-white w-full h-full flex justify-center  flex-col relative z-[99] bg-[#1f1f22] sm:bg-transparent overflow-hidden"
       // style={{ background: "rgba(0,0,0,0.5)" }}
     >
-      <header className=" bg-[#1F1F22] w-full flex justify-between items-center h-20 border-b-[1px] border-b-gray-600 sm:border-none relative z-10 ">
-        <nav className=" flex justify-between xl:justify-start items-center gap-x-6 h-full overflow-hidden w-5/6 sm:w-3/6 xl:w-1/2">
+      <header className=" bg-[#1F1F22] w-full flex justify-between items-center h-20 border-b-[1px] border-b-gray-600 xl:border-none relative z-10 ">
+        <nav className=" flex gap-4 xl:justify-start items-center gap-x-6 h-full overflow-hidden w-5/6 sm:w-3/5 xl:w-1/2">
           <div
-            className=" h-full flex justify-end items-center w-[11%]  xl:w-[7%] 2xl:w-[6%]  relative -left-[2px] "
+            className=" h-full flex justify-end items-center w-[11%] xsm:w-[9%] md:w-[13%] lg:w-[10%]  xl:w-[7%] 2xl:w-[6%]  relative "
             onClick={handleBack}
           >
             <FontAwesomeIcon
@@ -567,7 +572,7 @@ const ChatBox = () => {
           </div>
 
           <div className=" flex items-center">
-            <div className=" rounded-full relative  h-[60px] w-[60px]">
+            <div className=" rounded-full relative h-[40px] w-[40px] sm:h-[45px] sm:w-[45px]  lg:h-[60px] lg:w-[60px]">
               {onlineUsers.includes(anotherUser._id) && (
                 <span className=" absolute p-1 rounded-full bg-green-500 -right-2 z-[999]   "></span>
               )}
@@ -578,7 +583,7 @@ const ChatBox = () => {
               />
             </div>
             <div className=" pl-5 text-nowrap">
-              <h3 className=" text-2xl md:text-xl lg:text-2xl  font-bold leading-5 ">
+              <h3 className=" text-xl md:text-xl lg:text-2xl  font-bold leading-5 ">
                 {anotherUser?.fullName}
               </h3>
               <span className=" text-neutral-500 text-[13px] font-normal capitalize leading-3">
@@ -609,7 +614,10 @@ const ChatBox = () => {
                   }}
                   className=" py-4 px-4  rounded-full bg-[#27272a] cursor-pointer flex justify-center shadow border-none outline-none"
                 >
-                  <FontAwesomeIcon icon={filledStar} className=" h-5" />
+                  <FontAwesomeIcon
+                    icon={filledStar}
+                    className=" h-5 sm:h-4 lg:h-5 "
+                  />
                 </button>
               ) : (
                 <button
@@ -627,7 +635,7 @@ const ChatBox = () => {
             </div>
             <div className="text-center flex justify-center items-center flex-col gap-y-2">
               <button
-                className="  py-5 px-4 rounded-full bg-[#27272a] cursor-pointer border-none outline-none flex justify-center  shadow"
+                className="  px-4 py-5  sm:py-4 sm:px-4 xl:py-5 xl:px-4 rounded-full bg-[#27272a] cursor-pointer border-none outline-none flex justify-center  shadow"
                 disabled={
                   friends?.filter((fr) => fr.friend_id === anotherUser._id)
                     .length > 0
@@ -638,7 +646,7 @@ const ChatBox = () => {
               >
                 <FontAwesomeIcon
                   icon={faUserPlus}
-                  className={` h-5 ${
+                  className={` h-5 sm:h-4 lg:h-5  ${
                     friends?.filter((fr) => fr.friend_id === anotherUser._id)
                       .length > 0
                       ? "text-neutral-500"
@@ -668,7 +676,7 @@ const ChatBox = () => {
         <motion.div
           initial={{ y: 0 }}
           animate={animations[4]}
-          className="overflow-hidden absolute   px-2 py-2 rounded-md text-slate-400 bg-[#404040]  top-8 right-1/2 flex items-center justify-center -translate-x-[50%] z-[9]"
+          className="overflow-hidden absolute   px-2 py-2 rounded-md text-slate-400 bg-[#404040] top-4  lg:top-8  xl:top-4  right-1/2 flex items-center justify-center -translate-x-[50%] z-[9]"
         >
           <motion.div initial={{ rotate: 0 }} animate={animations[5]}>
             <div className=" rounded-full bg-[#404040] border-[rgba(253,113,112,1)] border-2 h-[25px] w-[25px]">
@@ -717,13 +725,13 @@ const ChatBox = () => {
             })}
         </div>
       </div>
-      <div className=" w-full  flex justify-center items-center mb-2 sm:mb-4 pt-1 sm:pt-3 relative bottom-1 sm:bottom-3 border-t-[1px] md:border-none border-t-gray-600">
+      <div className=" w-full  flex justify-center items-center mb-2 sm:mb-4 pt-1 sm:pt-3 relative bottom-0 xl:bottom-3 border-t-[1px] xl:border-none border-t-gray-600">
         <form
           id="msg_form"
           onSubmit={handleForm}
           className=" flex justify-center items-center w-[90%] sm:w-10/12 gap-x-3 relative"
         >
-          <div className=" w-[90%] sm:w-4/5 bg-[#1F1F22] rounded-lg flex justify-center items-center px-2 py-1 shadow-lg md:shadow-sm  shadow-[rgba(255,255,255,0.1)] relative">
+          <div className=" w-[90%] sm:w-4/5 bg-[#1F1F22] rounded-lg flex justify-center items-center px-2 py-1 shadow-lg xl:shadow-sm  shadow-[rgba(255,255,255,0.1)] relative">
             <div
               // initial={{ height: "15vmax" }}
               // animate={{ height: "9vmax" }}

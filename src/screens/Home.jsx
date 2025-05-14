@@ -5,6 +5,9 @@ import BG from "../components/BG.jsx";
 import SideBar from "../components/SideBar.jsx";
 import { Context, socketServer } from "../context/StateProvider";
 import { io } from "socket.io-client";
+import { motion } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMessage } from "@fortawesome/free-solid-svg-icons";
 
 const Home = () => {
   const toast = useToast();
@@ -34,18 +37,7 @@ const Home = () => {
       console.log("Socket connected");
     });
 
-    socket.current.on("join-room", (roomID) => {
-      toast({
-        title: "Enjoy Chatting with your friend",
-        status: "info",
-        duration: 2000,
-        position: "bottom",
-      });
-    });
-
-    socket.current.on("error", (error) => {
-      handleSocketError(error);
-    });
+    socket.current.on("error", handleSocketError);
   };
 
   //it'll shows the error occurred in socket connection and navigate to /auth
@@ -100,27 +92,25 @@ const Home = () => {
       .finally(() => {});
 
     return () => {
-      if (socket.current) {
-        socket.current.off("join-room");
-        socket.current.off("error");
-        socket.current.off("new-message");
-        socket.current.off("room-already");
-        socket.current.off("room-joined");
-        socket.current.off("join-room");
-        socket.current.off("initiate-chat");
+      socket.current?.off("join-room");
+      socket.current?.off("error");
+      socket.current?.off("new-message");
+      socket.current?.off("room-already");
+      socket.current?.off("room-joined");
+      socket.current?.off("join-room");
+      socket.current?.off("initiate-chat");
 
-        console.log("Called Disconnect");
-        socket.current.disconnect();
-        socket.current.on("disconnect", (id) => {
-          console.log(id);
-          // toast({
-          //   title: `User ${id} left the chat`,
-          //   duration: 2000,
-          //   status: "info",
-          //   position: "bottom",
-          // });
-        });
-      }
+      console.log("Called Disconnect");
+      socket.current?.disconnect();
+      socket.current?.on("disconnect", (id) => {
+        console.log(id);
+        // toast({
+        //   title: `User ${id} left the chat`,
+        //   duration: 2000,
+        //   status: "info",
+        //   position: "bottom",
+        // });
+      });
     };
   }, []);
 
@@ -128,66 +118,85 @@ const Home = () => {
     const online = async () => {
       // console.log("Friends: ", friends);
       if (socket.current && friends?.length > 0) {
-        // console.log("Called");
-        // if (onlineUsers.length <= 0) {
-        // }
         socket.current.emit("call-update-users");
 
-        // console.log("Online Users: ", onlineUsers);
-        socket.current.once("update-active-users", (arr, callback) => {
-          // console.log("Listening updated users: ", arr);
-          let online = friends
-            .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
-            .filter((fr) => fr !== null);
-
-          // console.log("Online In Home: ", online);
-          // console.log("Friends: ", friends);
-
-          const isIncludes = online
-            .map((user) => (onlineUsers.includes(user) ? true : false))
-            .some((item) => item === true);
-
-          // console.log("Is Includes: ", isIncludes);
-
-          !isIncludes && setOnlineUsers(online);
-
-          if (typeof callback === "function") {
-            callback({ msg: "Done" });
-          }
-        });
+        // console.log("Called ");
+        socket.current?.on("update-active-users", hndlUpdtActvs);
       }
     };
 
     online();
 
     return () => {
-      if (socket.current) {
-        socket.current.off("call-update-users");
-        socket.current.off("update-active-users");
-      }
+      socket.current?.off("update-active-users");
+
+      socket.current?.off("call-update-users");
     };
   }, [friends?.length]);
+
+  // O
 
   // if (socket.current) {
   //   console.log("True");
   // }
 
+  function hndlUpdtActvs(arr, callback) {
+    let online = friends
+      .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
+      .filter((fr) => fr !== null);
+
+    console.log("Online In Home: ", online);
+    console.log("Friends: ", friends);
+    console.log("Listening updated Arr: ", arr);
+
+    const isIncludes = online
+      .map((user) => (onlineUsers.includes(user) ? true : false))
+      .some((item) => item === true);
+
+    // console.log("Is Includes: ", isIncludes);
+
+    !isIncludes && setOnlineUsers(online);
+
+    if (typeof callback === "function") {
+      callback({ msg: "Done" });
+    }
+  }
+
   return (
     <div className="h-screen w-screen">
+      <motion.div
+        initial={{ y: 0 }}
+        animate={{ y: "-100%" }}
+        transition={{ duration: 0.5, delay: 3.3, ease: "easeOut" }}
+        className=" flex justify-center items-center absolute h-dvh w-dvw bg-[#1F1F22] z-[999]"
+      >
+        <div className="flex flex-col items-center justify-center  text-white shadow-lg drop-shadow-lg drop-shadow-purpleGradient">
+          <div>
+            <FontAwesomeIcon
+              icon={faMessage}
+              className="  text-white h-[60px] w-[60px] absolute -right-10 -top-10"
+            />
+            <h1 className=" text-9xl font-bold text-white  uppercase tracking-wider ">
+              Blip
+            </h1>
+          </div>
+          <h4>Moments, Not Monologues.</h4>
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{
+              scaleX: 1,
+              transformOrigin: "left",
+              transition: { duration: 3, ease: "easeInOut" },
+            }}
+            className=" w-2/3 h-1 rounded-md bg-white mt-4"
+          ></motion.div>
+        </div>
+      </motion.div>
       <div className="flex h-full w-full">
-        {/* <Suspense
-          fallback={
-            <div className=" flex flex-col justify-start items-start h-full md:w-4/6 lg:w-6/12 xl:w-2/6 px-1 relative 2xl:min-w-[25vmax]">
-              
-              
-             
-            </div>
-          }
-        > */}
         <SideBar />
         {/* </Suspense> */}
-        <div className=" h-full w-full bg-[#1F1F22]">
-          <div className=" absolute  h-full overflow-hidden w-full">
+        <div className=" h-full  w-full bg-[#1F1F22] relative ">
+          <div className=" absolute   h-full overflow-hidden w-full">
             <BG />
           </div>
           <Outlet />

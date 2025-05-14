@@ -1,7 +1,15 @@
 import React from "react";
 import UserCard from "./UserCard";
 
-const UsersContainer = ({ users, zeroTitle }) => {
+const UsersContainer = ({
+  users,
+  zeroTitle,
+  onlineUsers,
+  createChat,
+  backgroundMsgs,
+  setBackgroundMsgs,
+  socket,
+}) => {
   if (!users || users.length < 1) {
     return (
       <div className="w-full text-center h-full">
@@ -29,7 +37,15 @@ const UsersContainer = ({ users, zeroTitle }) => {
         //   }
         //   key={user._id}
         // >
-        <UserCard anotherUser={user} key={user._id} />
+        <UserCard
+          backgroundMsgs={backgroundMsgs}
+          setBackgroundMsgs={setBackgroundMsgs}
+          onlineUsers={onlineUsers}
+          createChat={createChat}
+          socket={socket}
+          anotherUser={user}
+          key={user._id}
+        />
         // </Suspense>
       ))}
     </div>
