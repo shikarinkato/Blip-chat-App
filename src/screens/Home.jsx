@@ -1,10 +1,10 @@
 import { useToast } from "@chakra-ui/toast";
-import React, { useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import BG from "../components/BG.jsx";
 import SideBar from "../components/SideBar.jsx";
 import { Context, socketServer } from "../context/StateProvider";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMessage } from "@fortawesome/free-solid-svg-icons";
@@ -28,7 +28,7 @@ const Home = () => {
   // connecting the socket and added an event listeners if someone created chat room
   const initializeSocket = () => {
     // Setup listeners
-    socket.current.on("connect", () => {
+    socket.current?.on("connect", () => {
       if (isReconnect.current) {
         socket.current.emit("reinitiate-chat");
       } else {
@@ -37,7 +37,7 @@ const Home = () => {
       console.log("Socket connected");
     });
 
-    socket.current.on("error", handleSocketError);
+    socket.current?.on("error", handleSocketError);
   };
 
   //it'll shows the error occurred in socket connection and navigate to /auth
@@ -61,28 +61,32 @@ const Home = () => {
   };
 
   useEffect(() => {
+    if (!token) {
+      navigate("/auth");
+    }
+    // Authenticated flow
+    socket.current = io(`${socketServer}`, {
+      query: { token },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      timeout: 60000,
+    });
+
+    socket.current = socket.current;
+
+    console.log("Happening");
+    console.log("Socket: ", socket.current);
+
     const asyncInit = async () => {
       // Validate Auth
-      if (token) {
-        // Authenticated flow
-        socket.current = io(`${socketServer}`, {
-          query: { token },
-          reconnection: true,
-          reconnectionDelay: 1000,
-          timeout: 60000,
-        });
 
-        // setIsAuthenticated(true);
+      initializeSocket();
+      // setIsAuthenticated(true);
 
-        await getProfile(token); // wait to get profile info
-        // await getAllFriends(token);
+      await getProfile(token); // wait to get profile info
+      // await getAllFriends(token);
 
-        //Socket listener function
-        initializeSocket();
-      } else {
-        // setIsAuthenticated(false);
-        navigate("/auth");
-      }
+      //Socket listener function
     };
 
     asyncInit()
@@ -90,6 +94,16 @@ const Home = () => {
         console.log(err);
       })
       .finally(() => {});
+
+    socket.current?.on("disconnect", (id) => {
+      console.log(id);
+      // toast({
+      //   title: `User ${id} left the chat`,
+      //   duration: 2000,
+      //   status: "info",
+      //   position: "bottom",
+      // });
+    });
 
     return () => {
       socket.current?.off("join-room");
@@ -102,72 +116,55 @@ const Home = () => {
 
       console.log("Called Disconnect");
       socket.current?.disconnect();
-      socket.current?.on("disconnect", (id) => {
-        console.log(id);
-        // toast({
-        //   title: `User ${id} left the chat`,
-        //   duration: 2000,
-        //   status: "info",
-        //   position: "bottom",
-        // });
-      });
     };
   }, []);
 
   useEffect(() => {
-    const online = async () => {
-      // console.log("Friends: ", friends);
-      if (socket.current && friends?.length > 0) {
-        socket.current.emit("call-update-users");
-
-        // console.log("Called ");
-        socket.current?.on("update-active-users", hndlUpdtActvs);
-      }
-    };
-
-    online();
+    if (socket.current?.connected && friends?.length > 0) {
+      socket.current?.emit("call-update-users");
+      socket.current?.on("update-active-users", hndlUpdtActvs);
+      console.log("Friends: ", friends);
+    }
+    console.log("called");
+    // console.log(socket.current);
 
     return () => {
       socket.current?.off("update-active-users");
-
       socket.current?.off("call-update-users");
     };
   }, [friends?.length]);
 
-  // O
+  const hndlUpdtActvs = useCallback(
+    (arr, callback) => {
+      let online = friends
+        .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
+        .filter((fr) => fr !== null);
 
-  // if (socket.current) {
-  //   console.log("True");
-  // }
+      console.log("Online In Home: ", online);
+      console.log("Friends: ", friends);
+      console.log("Listening updated Arr: ", arr);
 
-  function hndlUpdtActvs(arr, callback) {
-    let online = friends
-      .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
-      .filter((fr) => fr !== null);
+      const isIncludes = online
+        .map((user) => (onlineUsers.includes(user) ? true : false))
+        .some((item) => item === true);
 
-    console.log("Online In Home: ", online);
-    console.log("Friends: ", friends);
-    console.log("Listening updated Arr: ", arr);
+      // console.log("Is Includes: ", isIncludes);
 
-    const isIncludes = online
-      .map((user) => (onlineUsers.includes(user) ? true : false))
-      .some((item) => item === true);
+      !isIncludes && setOnlineUsers(online);
 
-    // console.log("Is Includes: ", isIncludes);
-
-    !isIncludes && setOnlineUsers(online);
-
-    if (typeof callback === "function") {
-      callback({ msg: "Done" });
-    }
-  }
+      if (typeof callback === "function") {
+        callback({ msg: "Done" });
+      }
+    },
+    [friends?.length, onlineUsers?.length]
+  );
 
   return (
-    <div className="h-screen w-screen">
+    <div className="h-dvh w-dvw">
       <motion.div
         initial={{ y: 0 }}
         animate={{ y: "-100%" }}
-        transition={{ duration: 0.5, delay: 3.3, ease: "easeOut" }}
+        transition={{ duration: 0.5, delay: 4, ease: "easeOut" }}
         className=" flex justify-center items-center absolute h-dvh w-dvw bg-[#1F1F22] z-[999]"
       >
         <div className="flex flex-col items-center justify-center  text-white shadow-lg drop-shadow-lg drop-shadow-purpleGradient">
@@ -181,15 +178,17 @@ const Home = () => {
             </h1>
           </div>
           <h4>Moments, Not Monologues.</h4>
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{
-              scaleX: 1,
-              transformOrigin: "left",
-              transition: { duration: 3, ease: "easeInOut" },
-            }}
-            className=" w-2/3 h-1 rounded-md bg-white mt-4"
-          ></motion.div>
+          <div className=" w-2/3 h-1 rounded-md bg-gray-600 mt-4 relative overflow-hidden">
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{
+                scaleX: 1,
+                transformOrigin: "left",
+                transition: { duration: 3, ease: "easeInOut" },
+              }}
+              className=" w-full h-1 rounded-md bg-white absolute"
+            ></motion.div>
+          </div>
         </div>
       </motion.div>
       <div className="flex h-full w-full">

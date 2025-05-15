@@ -102,6 +102,12 @@ const ChatBox = () => {
   }, []);
 
   const chatFetchingHelper = useCallback(() => {
+    // console.log(
+    //   "Is includes friends: ",
+    //   friends.some((fr) => fr.friend_id === userId)
+    // );
+    // console.log("User: ", userId);
+    // console.log("Friends: ", friends);
     if (friends.some((fr) => fr.friend_id === userId)) {
       if (hasMore.current === true) {
         console.log("Called");
@@ -131,6 +137,12 @@ const ChatBox = () => {
 
   useEffect(() => {
     chatFetchingHelper();
+
+    const chatDiv = chatRef.current;
+    chatDiv?.addEventListener("scroll", scrollHandler);
+    return () => {
+      chatDiv?.removeEventListener("scroll", scrollHandler);
+    };
   }, [friends?.length]);
 
   /* Abhi jo production me issue arha hai unlimited loading ka like pura 
@@ -172,6 +184,7 @@ const ChatBox = () => {
       setShowFilesDragger(false);
       setDocsModal(false);
       inputRef.current.value = "";
+      inputRef.current.focus();
 
       if (msgObj?.message?.files?.length > 0) {
         let res = await fetch(`${serverUrl}/messages/upload-files`, {
@@ -494,14 +507,6 @@ const ChatBox = () => {
   }
 
   // console.log("Messages: ", messages);
-
-  useEffect(() => {
-    const chatDiv = chatRef.current;
-    chatDiv?.addEventListener("scroll", scrollHandler);
-    return () => {
-      chatDiv?.removeEventListener("scroll", scrollHandler);
-    };
-  }, []);
 
   const scrollHandler = async (e) => {
     if (fetchRef.current !== null) {
