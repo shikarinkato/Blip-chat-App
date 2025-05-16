@@ -14,12 +14,12 @@ import { io } from "socket.io-client";
 let token = JSON.parse(localStorage.getItem("token"));
 
 export let serverUrl;
-// serverUrl = "http://localhost:3000/api/v2";
-serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
+serverUrl = "http://localhost:3000/api/v2";
+// serverUrl = "https://blip-chat-backend.onrender.com/api/v2";
 
 export let socketServer;
-// socketServer = "http://localhost:3000";
-socketServer = "https://blip-chat-backend.onrender.com";
+socketServer = "http://localhost:3000";
+// socketServer = "https://blip-chat-backend.onrender.com";
 export let headerOptions = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${token}`,
@@ -36,6 +36,7 @@ function StateProvider({ children }) {
 
   let socket = useRef(null);
   let isReconnect = useRef(false);
+
 
   const value = useMemo(
     () => ({
@@ -171,7 +172,7 @@ function StateProvider({ children }) {
       res = await res.json();
       if (res.success === true) {
         setUser(res.user);
-        // console.log("User: ", res);
+        // //console.log("User: ", res);
         setFriends(res.user?.friends);
       } else {
         throw new Error(res.message);
@@ -182,7 +183,7 @@ function StateProvider({ children }) {
         error.name === "TokenExpiredError" ||
         error.message === "Token has expired"
       ) {
-        console.log("Token error ");
+        //console.log("Token error ");
         localStorage.removeItem("token");
         navigate("/auth");
         setIsAuthenticated(false);
@@ -349,7 +350,7 @@ function StateProvider({ children }) {
     }
   };
 
-  // console.log("Friends in Provider: ", friends);
+  // //console.log("Friends in Provider: ", friends);
 
   return (
     <Context.Provider

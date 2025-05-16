@@ -69,7 +69,7 @@ const SideBar = () => {
   //   },
   // ];
 
-  console.log("Sidebar Rendered");
+  //console.log("Sidebar Rendered");
 
   // useEffect(() => {
   //   document.addEventListener("click", listener);
@@ -79,7 +79,7 @@ const SideBar = () => {
   // }, []);
 
   // function listener(e) {
-  //   // console.log(e.target);
+  //   // //console.log(e.target);
   // }
 
   return (

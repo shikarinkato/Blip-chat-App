@@ -7,14 +7,16 @@ import { BrowserRouter } from "react-router-dom";
 import StateProvider from "./context/StateProvider.jsx";
 import { ChakraProvider } from "@chakra-ui/react";
 
+//console.log("NOt Runing");
+
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <ChakraProvider disableGlobalStyle>
-      <BrowserRouter>
-        <StateProvider>
-          <App />
-        </StateProvider>
-      </BrowserRouter>
-    </ChakraProvider>
-  </StrictMode>
+  // <StrictMode>
+  <ChakraProvider disableGlobalStyle>
+    <BrowserRouter>
+      <StateProvider>
+        <App />
+      </StateProvider>
+    </BrowserRouter>
+  </ChakraProvider>
+  // </StrictMode>
 );

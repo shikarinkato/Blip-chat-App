@@ -5,7 +5,8 @@ const ChatCard = ({ chat, anotherUser }) => {
   const { user, onlineUsers } = useContext(Context);
   const isSameUser = chat.sender_id?.toString() === user._id.toString();
   let date = new Date(chat.createdAt);
-  date = date.toLocaleTimeString();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  date = date.toLocaleTimeString("en-US", { timeZone });
 
   return (
     <div
@@ -42,12 +43,12 @@ const ChatCard = ({ chat, anotherUser }) => {
           <div
             className={` grid ${
               chat.files?.length >= 2 ? "grid-cols-2" : "grid-cols-1"
-            } gap-2 pb-2`}
+            } gap-2 pb-2 pt-4`}
           >
             {chat.files?.map((file, idx) => (
               <div
                 key={file.id}
-                className=" max-h-[120px] max-w-[120px] h-auto w-auto rounded-md overflow-hidden flex items-center justify-center"
+                className=" h-[80px] w-[80px] sm:max-h-[120px] sm:max-w-[120px] sm:h-auto sm:w-auto rounded-md overflow-hidden flex items-center justify-center"
               >
                 {[
                   "jpg",
@@ -70,7 +71,7 @@ const ChatCard = ({ chat, anotherUser }) => {
                   />
                 ) : (
                   <div
-                    className=" flex items-center justify-center h-[80px] w-[100px]  lg:h-[120px] lg:w-[120px]"
+                    className=" flex items-center justify-center h-full w-full   sm:h-[80px] sm:w-[80px]    lg:h-[120px] lg:w-[120px]"
                     style={{
                       backgroundColor: `rgb(${20 + idx * 20},${80 + idx * 30},${
                         100 + idx * 75
@@ -87,8 +88,10 @@ const ChatCard = ({ chat, anotherUser }) => {
               </div>
             ))}
           </div>
-          <p className=" font-sans  font-medium  break-words ">{chat.message}</p>
-          <span className=" text-[8px] lg:text-[10px] text-neutral-300 absolute right-2 bottom-[3px]">
+          <p className=" font-sans  font-medium  break-words ">
+            {chat.message}
+          </p>
+          <span className=" text-[10px] lg:text-[10px] text-neutral-300 absolute right-2 bottom-[3px]">
             {chat.time} {chat.time.split(":")[0] < 12 ? "am" : "pm"}
           </span>
         </div>

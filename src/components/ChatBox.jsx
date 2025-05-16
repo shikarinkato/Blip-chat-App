@@ -1,5 +1,6 @@
 import { faSmile, faStar } from "@fortawesome/free-regular-svg-icons";
 import {
+  faArrowLeft,
   faBars,
   faChevronLeft,
   faClose,
@@ -25,6 +26,7 @@ import { Context, headerOptions, serverUrl } from "../context/StateProvider";
 import ChatCard from "./ChatCard";
 import { useToast } from "@chakra-ui/toast";
 import { useAnimation, motion, delay } from "framer-motion";
+import { height } from "@fortawesome/free-brands-svg-icons/fa42Group";
 
 const ChatBox = () => {
   const { userId } = useParams();
@@ -63,6 +65,7 @@ const ChatBox = () => {
     useAnimation(),
     useAnimation(),
     useAnimation(),
+    useAnimation(),
   ];
 
   const inputRef = useRef();
@@ -77,6 +80,7 @@ const ChatBox = () => {
   const chatPrvsHght = useRef(0);
 
   let resFiles = [];
+
 
   // let token = JSON.parse(localStorage.getItem("token"));
 
@@ -102,15 +106,15 @@ const ChatBox = () => {
   }, []);
 
   const chatFetchingHelper = useCallback(() => {
-    // console.log(
+    // //console.log(
     //   "Is includes friends: ",
     //   friends.some((fr) => fr.friend_id === userId)
     // );
-    // console.log("User: ", userId);
-    // console.log("Friends: ", friends);
+    // //console.log("User: ", userId);
+    // //console.log("Friends: ", friends);
     if (friends.some((fr) => fr.friend_id === userId)) {
       if (hasMore.current === true) {
-        console.log("Called");
+        //console.log("Called");
         fetchChats(userId, next.current)
           .then((res) => {
             setMessages((prev) => [
@@ -125,7 +129,7 @@ const ChatBox = () => {
           })
           .catch((err) => {
             setLoading(false);
-            console.log(err);
+            //console.log(err);
           });
       } else {
         setLoading(false);
@@ -145,8 +149,6 @@ const ChatBox = () => {
     };
   }, [friends?.length]);
 
-  /* Abhi jo production me issue arha hai unlimited loading ka like pura 
-  container loading show krta hai isFetched ki wajah se */
 
   function handleAddFriend() {
     addToFriends(anotherUser._id);
@@ -169,7 +171,7 @@ const ChatBox = () => {
       const files = [];
 
       message.files?.forEach((fl) => {
-        // console.log("File:", fl);
+        // //console.log("File:", fl);
         files.push({ url: `${user.pic}`, type: `${fl.name.split(".")[1]}` });
       });
 
@@ -201,10 +203,10 @@ const ChatBox = () => {
       // setShow(false);
       formData.current = new FormData();
 
-      console.log("Current Room ID: ", room.current);
+      //console.log("Current Room ID: ", room.current);
 
-      // console.log("Current room: ", room.current);
-      // console.log("Message: ", msgObj);
+      // //console.log("Current room: ", room.current);
+      // //console.log("Message: ", msgObj);
 
       return resFiles;
     },
@@ -213,8 +215,8 @@ const ChatBox = () => {
 
   useEffect(() => {
     async function initiateChat() {
-      // console.log("Chat initiated");
-      // console.log("Socket: ",socket.current);
+      // //console.log("Chat initiated");
+      // //console.log("Socket: ",socket.current);
       socket.current?.emit(
         "initiate-chat",
         anotherUser.user + user._id,
@@ -230,7 +232,7 @@ const ChatBox = () => {
 
     // let timer = setTimeout(() => {
     // if (socket.current) {
-    // console.log("Clled");
+    // //console.log("Clled");
     // }
     initiateChat();
     // }, 2000);
@@ -242,11 +244,10 @@ const ChatBox = () => {
     };
   }, [user, socket.current]);
 
-  // console.log("Messages Initialy: ", messages);
 
   useEffect(() => {
     socket.current?.on("new-message", (msg) => {
-      console.log("New Message");
+      //console.log("New Message");
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
       setMessages((prev) => [...prev, msg]);
     });
@@ -279,7 +280,7 @@ const ChatBox = () => {
     });
 
     socket.current?.on("files-uploaded", () => {
-      console.log("Files Uploaded");
+      //console.log("Files Uploaded");
       const newArr = [...messages];
       newArr[newArr.length - 1].files = resFiles.files;
       setMessages(newArr);
@@ -287,7 +288,7 @@ const ChatBox = () => {
 
     return () => {
       if (socket.current) {
-        // console.log("Abhi zinda hu");
+        // //console.log("Abhi zinda hu");
         socket.current?.off("new-message");
         socket.current?.off("room-already");
         socket.current?.off("room-joined");
@@ -309,10 +310,163 @@ const ChatBox = () => {
     chatPrvsHght.current = chatRef.current.scrollHeight;
   }, [messages?.length]);
 
+  let isNestHub = 0;
+
+  const filesModalHandler = useCallback(
+    (width) => {
+      let hght = window?.innerHeight;
+
+      isNestHub = width >= 1024 && width < 1280 && hght <= 600;
+
+      if (width >= 375 && width < 395) {
+        console.log("Called 1");
+        if (showfilesDragger) {
+          filesDragger.current.scrollTop = 0;
+          animations[6].start({
+            width: "100%",
+            height: "70vh",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        } else {
+          console.log("Called ");
+          animations[6].start({
+            width: "auto",
+            height: "38vh",
+            overflow: "hidden",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        }
+      } else if (width >= 395 && width < 640) {
+        console.log("Called 2");
+
+        if (showfilesDragger) {
+          filesDragger.current.scrollTop = 0;
+          animations[6].start({
+            width: "100%",
+            height: "70vh",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        } else {
+          console.log("Called ");
+          animations[6].start({
+            width: "auto",
+            height: "28vh",
+            overflow: "hidden",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        }
+      } else if (width >= 640 && width < 820) {
+        console.log("Called 2");
+
+        if (showfilesDragger) {
+          filesDragger.current.scrollTop = 0;
+          animations[6].start({
+            width: "auto",
+            height: "70vh",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        } else {
+          console.log("Called ");
+          animations[6].start({
+            width: "auto",
+            height: "28vh",
+            overflow: "hidden",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        }
+      } else if (width >= 820 && width < 1024) {
+        console.log("Called 3");
+
+        if (showfilesDragger) {
+          filesDragger.current.scrollTop = 0;
+          animations[6].start({
+            width: "auto",
+            height: "70vh",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        } else {
+          console.log("Called ");
+          animations[6].start({
+            width: "auto",
+            height: "24vh",
+            overflow: "hidden",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        }
+      } else if (isNestHub) {
+        console.log("Called 4");
+
+        if (showfilesDragger) {
+          filesDragger.current.scrollTop = 0;
+          animations[6].start({
+            width: "auto",
+            height: "70vh",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        } else {
+          console.log("Called ");
+          animations[6].start({
+            width: "auto",
+            height: "40vh",
+            overflow: "hidden",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        }
+      } else if (width >= 1024 && width < 1280) {
+        console.log("Called 5");
+
+        if (showfilesDragger) {
+          filesDragger.current.scrollTop = 0;
+          animations[6].start({
+            width: "auto",
+            height: "70vh",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        } else {
+          console.log("Called ");
+          animations[6].start({
+            width: "auto",
+            height: "30vh",
+            overflow: "hidden",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        }
+      } else if (width >= 1280) {
+        console.log("Called 5");
+
+        if (showfilesDragger) {
+          filesDragger.current.scrollTop = 0;
+          animations[6].start({
+            width: "auto",
+            height: "70vh",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        } else {
+          console.log("Called ");
+          animations[6].start({
+            width: "auto",
+            height: "32vh",
+            overflow: "hidden",
+            transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
+          });
+        }
+      }
+    },
+    [showfilesDragger]
+  );
+
+  let wndwReszHndlr = useCallback(
+    (width) => {
+      filesModalHandler(width);
+      console.log("Called Rezise");
+    },
+    [showfilesDragger]
+  );
+
   useLayoutEffect(() => {
     const width = window?.innerWidth;
     if (show) {
-      // console.log("Called show");
+      // //console.log("Called show");
       animations[0].start({
         opacity: 1,
         x: 0,
@@ -388,7 +542,25 @@ const ChatBox = () => {
         transition: { duration: 0.5, ease: "backIn" },
       });
     }
-  }, [show, docsModal, loading]);
+
+    // message files modal
+    if (message.files?.length > 0) {
+      filesModalHandler(width);
+    }
+
+    //Adding event listener  so filesModal can adjust according to it
+    filesDragger.current.addEventListener(
+      "resize",
+      wndwReszHndlr.bind(null, width)
+    );
+
+    return () => {
+      filesDragger.current.removeEventListener(
+        "resize",
+        wndwReszHndlr.bind(null, width)
+      );
+    };
+  }, [show, docsModal, loading, showfilesDragger]);
 
   function handleBack(e) {
     navigate("/");
@@ -403,13 +575,6 @@ const ChatBox = () => {
   function handleClose(e) {
     e.stopPropagation();
     setShow(false);
-  }
-
-  function hndleFileDrgrCls(e) {
-    e.stopPropagation();
-    setShowFilesDragger(false);
-    setMessage((prev) => ({ ...prev, files: [] }));
-    console.log("Called");
   }
 
   async function handleAddToFav(e, action) {
@@ -461,9 +626,7 @@ const ChatBox = () => {
     );
   }
 
-  async function docsModalHandler() {
-    setDocsModal(!docsModal);
-  }
+ 
 
   function handleFileInput(e) {
     const reader = new FileReader();
@@ -492,10 +655,10 @@ const ChatBox = () => {
     }
   }
 
-  async function openFilesDragger(e) {
-    // filesDragger.current.style.display = "flex";
-    setShowFilesDragger(true);
-  }
+  // async function openFilesDragger(e) {
+  //   // filesDragger.current.style.display = "flex";
+  //   setShowFilesDragger(true);
+  // }
 
   async function handleForm(e) {
     e.preventDefault();
@@ -504,9 +667,32 @@ const ChatBox = () => {
     const newArr = [...messages];
     newArr[newArr.length - 1].files = files;
     setMessages(newArr);
+    setDocsModal(false);
   }
 
-  // console.log("Messages: ", messages);
+  function unvrslFrmHndlr(e) {
+    if (
+      e.target.id === "drggr_clsr" ||
+      e.target.parentNode.id === "drggr_clsr"
+    ) {
+      setShowFilesDragger(false);
+      setDocsModal(false);
+    } else if (e.target.id === "drggr_opnr") {
+      setShowFilesDragger(true);
+      setDocsModal(false);
+    } else if (
+      e.target.id === "fl_clnr" ||
+      e.target.parentNode.id === "fl_clnr"
+    ) {
+      setDocsModal(false);
+      setMessage((prev) => ({ ...prev, files: [] }));
+    } else if (
+      e.target.id === "dcs_mdl_opnr" ||
+      e.target.parentNode.id === "dcs_mdl_opnr"
+    ) {
+      setDocsModal(!docsModal);
+    }
+  }
 
   const scrollHandler = async (e) => {
     if (fetchRef.current !== null) {
@@ -514,7 +700,7 @@ const ChatBox = () => {
     }
 
     if (chatRef.current.scrollTop === 0 && !loading) {
-      console.log(fetchRef.current);
+      //console.log(fetchRef.current);
       fetchRef.current = setTimeout(() => {
         chatFetchingHelper();
       }, 500);
@@ -523,6 +709,7 @@ const ChatBox = () => {
   };
 
   let orgDay;
+
   return (
     <div
       className=" text-white w-full h-full flex justify-center  flex-col relative z-[99] bg-[#1f1f22] sm:bg-transparent overflow-hidden"
@@ -734,112 +921,101 @@ const ChatBox = () => {
         <form
           id="msg_form"
           onSubmit={handleForm}
+          onClick={unvrslFrmHndlr}
           className=" flex justify-center items-center w-[90%] sm:w-10/12 gap-x-3 relative"
         >
           <div className=" w-[90%] sm:w-4/5 bg-[#1F1F22] rounded-lg flex justify-center items-center px-2 py-1 shadow-lg xl:shadow-sm  shadow-[rgba(255,255,255,0.1)] relative">
-            <div
+            <motion.div
               // initial={{ height: "15vmax" }}
-              // animate={{ height: "9vmax" }}
+              animate={animations[6]}
               // transition={{ duration: 2, delay: 2 }}
               className={`${
                 message?.files?.length > 0 ? "flex" : "hidden"
-              } absolute bg-stone-800 rounded-md left-4 bottom-14 p-2 pt-4   ${
-                showfilesDragger ? "w-9/12" : "w-auto"
-              }`}
+              } absolute bg-stone-800 rounded-md bottom-20 2md:bottom-24 2md:pt-10 lg:pt-12 left-4 lg:-left-4 sm:bottom-14 p-2  w-auto ${
+                showfilesDragger ? "pt-8    xl:w-9/12" : "pt-4 "
+              } overflow-hidden  
+              `}
             >
-              {/* <div
-                ref={filesDragger}
-                className={` gap-x-3 gap-y-4 p-3 w-full ${
-                  showfilesDragger ? "flex " : "grid"
-                }  ${
-                  message.files.length > 3 ? "grid-cols-2" : " grid-cols-3"
-                } `}
-              > */}
+              {showfilesDragger && (
+                <FontAwesomeIcon
+                  className=" absolute h-[22px] w-[22px] 2md:h-[30px] 2md:w-[30px] top-2 outline-none border-none hiddden cursor-pointer"
+                  id="drggr_clsr"
+                  icon={faArrowLeft}
+                />
+              )}
+
               <div
                 ref={filesDragger}
-                className={` gap-x-3 gap-y-4 p-3 w-full min-w-[37vmax] flex overflow-x-auto`}
+                className={`gap-3 sm:gap-x-3 sm:gap-y-4 p-3 w-full h-auto  ${
+                  showfilesDragger
+                    ? "overflow-y-auto"
+                    : "overflow-hidden max-h-[40vh] vvsm:max-h-[38vh] sm:max-h-[24vh] 2md:max-h-[26vh]"
+                }  sm:min-w-[37vmax] 2md:min-w-[33vmax] lg:min-w-[36vmax] grid grid-cols-2 xl:grid-cols-4
+                 sm:overflow-x-auto`}
               >
                 {message?.files?.map((file, idx) => {
-                  if (!showfilesDragger && idx <= 3) {
-                    if (file.data.startsWith("application/")) {
-                      return (
+                  const isLast =
+                    !showfilesDragger &&
+                    idx === 3 &&
+                    message?.files?.length > 4;
+                  return (
+                    <div
+                      key={file.name}
+                      className={`relative flex justify-center rounded-md overflow-hidden items-center min-h-[100px] lg:min-h-[160px] min-w-[100px] h-auto auto lg:min-w-[160px] ${
+                        isNestHub && "h-[100px] w-[100px]"
+                      } ${isLast && "cursor-pointer"}`}
+                    >
+                      {" "}
+                      {isLast && (
+                        <div
+                          id="drggr_opnr"
+                          className=" absolute h-full w-full bg-transparent z-30"
+                        ></div>
+                      )}
+                      {isLast && (
+                        <span className="  text-gray-400 font-normal text-[14px] absolute ">
+                          {message.files.length - (idx + 1)} more
+                        </span>
+                      )}
+                      {/* // if (!showfilesDragger && idx <= 3) { */}
+                      {file.data.startsWith("application/") ? (
                         <div
                           key={file.name}
-                          className="h-[100px] w-[100px] rounded-md text-center bg-emerald-600 text-gray-300 text-[12px] font-medium flex justify-center items-center"
+                          className={`h-full w-full rounded-md text-center bg-emerald-600 text-gray-300 text-[12px] ${
+                            isLast && "opacity-10"
+                          } font-medium flex justify-center items-center`}
                         >
                           <span>{file.data.split("/")[1].toUpperCase()}</span>
                         </div>
-                      );
-                    } else {
-                      return (
+                      ) : (
                         <div
                           key={file.name}
-                          className=" flex justify-center items-center h-[100px] w-[100px] relative bg-[rgba(1,1,1,0.8)] rounded-md"
-                          onClick={(e) => {
-                            if (!showfilesDragger) {
-                              openFilesDragger(e);
-                            }
-                          }}
+                          className=" flex justify-center items-center h-full w-full relative  rounded-md"
                         >
-                          {!showfilesDragger &&
-                            idx === 3 &&
-                            message?.files?.length > 4 && (
-                              <span className=" bg-[rgba(1,1,1,0.7)] text-gray-400 font-normal text-[14px] absolute ">
-                                {message.files.length - (idx + 1)} more
-                              </span>
-                            )}
                           <img
                             className={` h-full w-full rounded-md ${
-                              !showfilesDragger &&
-                              idx === 3 &&
-                              message?.files?.length > 4 &&
-                              "opacity-10"
-                            } object-cover object-center`}
+                              isLast && "opacity-10"
+                            } object-contain object-center`}
                             src={file.data}
                           />
                         </div>
-                      );
-                    }
-                  } else {
-                    if (file.data.startsWith("application/")) {
-                      return (
-                        <div
-                          key={file.name}
-                          className="h-[100px] w-[100px] rounded-md text-center bg-emerald-600 text-gray-300 text-[12px] font-medium flex justify-center items-center"
-                        >
-                          <span>{file.data.split("/")[1].toUpperCase()}</span>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div className=" flex justify-center items-center h-[100px] w-[100px] relative bg-[rgba(1,1,1,0.8)] rounded-md">
-                          <img
-                            key={file.name}
-                            className={` h-full w-full rounded-md  object-cover object-center`}
-                            src={file.data}
-                          />
-                        </div>
-                      );
-                    }
-                  }
+                      )}
+                    </div>
+                  );
                 })}
               </div>
-              <button
-                className=" absolute right-2 -top-1 outline-none border-none"
-                style={{ outline: "none" }}
-                id="closeDragger"
-                onClick={hndleFileDrgrCls}
-                type="button"
-              >
-                <FontAwesomeIcon
-                  icon={faClose}
-                  className=" h-[18px] w-[18px] text-white"
-                />
-              </button>
-            </div>
+
+              <FontAwesomeIcon
+                id="fl_clnr"
+                className={` absolute right-2 ${
+                  showfilesDragger ? "top-1" : "top-0 2md:top-2"
+                } outline-none border-none h-[22px] w-[22px] 2md:h-[30px] 2md:w-[30px] text-white cursor-pointer`}
+                icon={faClose}
+              />
+            </motion.div>
             <span
               onClick={(e) => {
-                console.log("Called Smile");
+                //console.log("Called Smile");
                 e.stopPropagation();
                 setLoading(!loading);
               }}
@@ -857,7 +1033,7 @@ const ChatBox = () => {
               <motion.div
                 initial={{ y: "20%", scale: 0 }}
                 animate={animations[2]}
-                className=" flex justify-between items-center text-stone-500 gap-x-4 absolute py-3  p-4 rounded-md bg-stone-800 bottom-12 right-3 shadow-md"
+                className=" flex justify-between items-center text-white  gap-x-4 absolute py-3  p-4 rounded-md bg-[rgba(253,113,112,1)]  bottom-12 -right-8 sm:right-3 shadow-md"
               >
                 <div className=" cursor-pointer">
                   <input
@@ -894,12 +1070,11 @@ const ChatBox = () => {
                   </label>
                 </div>
               </motion.div>
-              <span className=" cursor-pointer" onClick={docsModalHandler}>
-                <FontAwesomeIcon
-                  icon={faPaperclip}
-                  className=" text-stone-500"
-                />
-              </span>
+              <FontAwesomeIcon
+                id="dcs_mdl_opnr"
+                icon={faPaperclip}
+                className=" text-stone-500 cursor-pointer"
+              />
             </div>
           </div>
           <button

@@ -10,7 +10,7 @@ const SideBarHeader = () => {
   const navigate = useNavigate();
 
   function handleSelect(e) {
-    // console.log(e.target.getAttribute("data-name"));
+    // //console.log(e.target.getAttribute("data-name"));
     // if (e.target.getAttribute("data-name") == "logout") {
     localStorage.removeItem("token");
     setIsAuthenticated(false);

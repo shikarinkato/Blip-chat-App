@@ -28,14 +28,14 @@ const LoginAndSignup = ({ Children }) => {
   };
 
   async function innerWidthCalc() {
-    // console.log(window.innerWidth);
+    // //console.log(window.innerWidth);
     return window.innerWidth;
   }
 
   async function innerWidthChecker() {
     let width = await innerWidthCalc();
 
-    console.log("InnerWidth: ", width);
+    //console.log("InnerWidth: ", width);
 
     if (width > 1280) {
       if (isLogin) {
@@ -107,8 +107,8 @@ const LoginAndSignup = ({ Children }) => {
   useEffect(() => {
     window.addEventListener("resize", widthHandler);
 
-    // console.log("InnerWidth: ", innerWidth);
-    // console.log("IsLogin: ", isLogin);
+    // //console.log("InnerWidth: ", innerWidth);
+    // //console.log("IsLogin: ", isLogin);
     innerWidthChecker();
 
     return () => {
@@ -119,14 +119,14 @@ const LoginAndSignup = ({ Children }) => {
   // useEffect(() => {
   //   // handleAnimation();
 
-  //   // console.log("Width: ", currMeasures.width);
-  //   // console.log("Height: ", currMeasures.height);
+  //   // //console.log("Width: ", currMeasures.width);
+  //   // //console.log("Height: ", currMeasures.height);
 
   // }, [isLogin, currMeasures.width, currMeasures.height]);
 
   const handleAnimation = (height, width) => {
-    // console.log("Height: ", height);
-    // console.log("Width: ", width);
+    // //console.log("Height: ", height);
+    // //console.log("Width: ", width);
     if (isLogin) {
       containerAnimation.start({
         height: `${height}vmax`,
@@ -157,7 +157,7 @@ const LoginAndSignup = ({ Children }) => {
 
   const widthHandler = () => {
     innerWidthChecker();
-    // console.log("InnerWidth in LoginandSignup: ", window.innerWidth);
+    // //console.log("InnerWidth in LoginandSignup: ", window.innerWidth);
   };
 
   return (

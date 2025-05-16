@@ -14,7 +14,7 @@ const UserSearch = () => {
   let input = useRef();
   const toast = useToast();
 
-  console.log("User Search Rendered");
+  //console.log("User Search Rendered");
 
   function handleAnimaton() {
     if (show) {

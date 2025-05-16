@@ -3,8 +3,10 @@
 @tailwind utilities;
 
 @theme: {
-  --breakpoint-2md: "765px";
+  --breakpoint-vvsm: "375px";
+  --breakpoint-vsm: "395px";
   --breakpoint-xsm: "530px";
+  --breakpoint-2md: "790px";
 };
 
 * {

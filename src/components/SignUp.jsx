@@ -234,7 +234,7 @@ const SignUp = () => {
     }
   }
 
-  // console.log(formData);
+  // //console.log(formData);
 
   return (
     <div className=" flex flex-col  py-3 w-full text-center justify-center items-center pt-8 lg:pt-8">

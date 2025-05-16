@@ -25,8 +25,8 @@ const Input = ({ type, placeholder, onChange, height, value }) => {
     setInput(value);
   }, [value]);
 
-  // console.log("value rendered", value);
-  // console.log("Current input Rendered", input);
+  // //console.log("value rendered", value);
+  // //console.log("Current input Rendered", input);
 
   return (
     <div className=" relative w-full">
@@ -46,14 +46,14 @@ const Input = ({ type, placeholder, onChange, height, value }) => {
                 onClick={() => {
                   setShow(false);
                 }}
-                icon={faEye}
+                icon={faEyeSlash}
               />
             ) : (
               <FontAwesomeIcon
                 onClick={() => {
                   setShow(true);
                 }}
-                icon={faEyeSlash}
+                icon={faEye}
               />
             )}
           </div>

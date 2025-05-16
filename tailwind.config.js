@@ -9,8 +9,10 @@ export default {
           "linear-gradient(90deg, rgba(253,113,112,1) 0%, rgba(240,80,153,1) 100%)",
       },
       screens: {
+        "vvsm": "375px",
+        "vsm": "395px",
+        "xsm": "520px",
         "2md": "820px",
-        "xsm": "520px"
       }
     },
   },

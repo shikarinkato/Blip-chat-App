@@ -97,7 +97,7 @@ const Login = () => {
         });
       }
 
-      console.log(loading);
+      //console.log(loading);
 
       let isEmail = formData.email.includes("@");
 
@@ -133,10 +133,10 @@ const Login = () => {
 
   // useLayoutEffect(() => {
   //   handleAnimations();
-  //   console.log("InnerWidth in Login: ", window.innerWidth);
+  //   //console.log("InnerWidth in Login: ", window.innerWidth);
   // }, [isLogin]);
 
-  // console.log(loading)
+  // //console.log(loading)
   return (
     <div className="flex flex-col justify-center items-center w-full h-full gap-y-2">
       <motion.form

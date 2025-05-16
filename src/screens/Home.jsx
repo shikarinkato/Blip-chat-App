@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/toast";
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import BG from "../components/BG.jsx";
 import SideBar from "../components/SideBar.jsx";
@@ -23,10 +23,12 @@ const Home = () => {
 
   const navigate = useNavigate();
 
+  const loaderRef = useRef(null);
+
   let token = JSON.parse(localStorage.getItem("token"));
 
   // connecting the socket and added an event listeners if someone created chat room
-  const initializeSocket = () => {
+  const initializeSocket = async () => {
     // Setup listeners
     socket.current?.on("connect", () => {
       if (isReconnect.current) {
@@ -34,7 +36,7 @@ const Home = () => {
       } else {
         isReconnect.current = true;
       }
-      console.log("Socket connected");
+      //console.log("Socket connected");
     });
 
     socket.current?.on("error", handleSocketError);
@@ -64,23 +66,37 @@ const Home = () => {
     if (!token) {
       navigate("/auth");
     }
+
+    let ldrTmout;
     // Authenticated flow
+
+    // if (socket.current === null) {
     socket.current = io(`${socketServer}`, {
       query: { token },
       reconnection: true,
       reconnectionDelay: 1000,
       timeout: 60000,
     });
+    // }
 
-    socket.current = socket.current;
+    //console.log("Happening");
+    //console.log("Socket: ", socket.current);
 
-    console.log("Happening");
-    console.log("Socket: ", socket.current);
+    const removeLoader = () => {
+      if (ldrTmout) clearTimeout(ldrTmout);
+      ldrTmout = setTimeout(() => {
+        if (loaderRef.current) {
+          loaderRef.current.remove();
+        }
+      }, 5000);
+    };
+
+    removeLoader();
 
     const asyncInit = async () => {
       // Validate Auth
 
-      initializeSocket();
+      await initializeSocket();
       // setIsAuthenticated(true);
 
       await getProfile(token); // wait to get profile info
@@ -96,7 +112,7 @@ const Home = () => {
       .finally(() => {});
 
     socket.current?.on("disconnect", (id) => {
-      console.log(id);
+      //console.log(id);
       // toast({
       //   title: `User ${id} left the chat`,
       //   duration: 2000,
@@ -106,6 +122,8 @@ const Home = () => {
     });
 
     return () => {
+      // console.log("Home Unmounted");
+      clearTimeout(ldrTmout);
       socket.current?.off("join-room");
       socket.current?.off("error");
       socket.current?.off("new-message");
@@ -114,25 +132,27 @@ const Home = () => {
       socket.current?.off("join-room");
       socket.current?.off("initiate-chat");
 
-      console.log("Called Disconnect");
+      //console.log("Called Disconnect");
       socket.current?.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    if (socket.current?.connected && friends?.length > 0) {
+    if (socket.current && friends?.length > 0) {
+      // console.log("called");
       socket.current?.emit("call-update-users");
       socket.current?.on("update-active-users", hndlUpdtActvs);
-      console.log("Friends: ", friends);
     }
-    console.log("called");
-    // console.log(socket.current);
 
     return () => {
-      socket.current?.off("update-active-users");
+      // console.log("Home Unmounted 2");
+
       socket.current?.off("call-update-users");
+      socket.current?.off("update-active-users");
     };
   }, [friends?.length]);
+
+  //  Baackground message issue
 
   const hndlUpdtActvs = useCallback(
     (arr, callback) => {
@@ -140,15 +160,15 @@ const Home = () => {
         .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
         .filter((fr) => fr !== null);
 
-      console.log("Online In Home: ", online);
-      console.log("Friends: ", friends);
-      console.log("Listening updated Arr: ", arr);
+      // console.log("Online In Home: ", online);
+      // console.log("Friends: ", friends);
+      // console.log("Listening updated Arr: ", arr);
 
       const isIncludes = online
         .map((user) => (onlineUsers.includes(user) ? true : false))
         .some((item) => item === true);
 
-      // console.log("Is Includes: ", isIncludes);
+      // //console.log("Is Includes: ", isIncludes);
 
       !isIncludes && setOnlineUsers(online);
 
@@ -159,9 +179,12 @@ const Home = () => {
     [friends?.length, onlineUsers?.length]
   );
 
+  console.log("Home Rendered");
+
   return (
     <div className="h-dvh w-dvw">
       <motion.div
+        ref={loaderRef}
         initial={{ y: 0 }}
         animate={{ y: "-100%" }}
         transition={{ duration: 0.5, delay: 4, ease: "easeOut" }}
@@ -171,9 +194,9 @@ const Home = () => {
           <div>
             <FontAwesomeIcon
               icon={faMessage}
-              className="  text-white h-[60px] w-[60px] absolute -right-10 -top-10"
+              className="  text-white h-[40px] w-[40px] sm:h-[60px] sm:w-[60px] absolute -right-10 -top-10"
             />
-            <h1 className=" text-9xl font-bold text-white  uppercase tracking-wider ">
+            <h1 className=" text-7xl sm:text-9xl font-bold text-white  uppercase tracking-wider ">
               Blip
             </h1>
           </div>
