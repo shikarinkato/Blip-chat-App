@@ -81,7 +81,6 @@ const ChatBox = () => {
 
   let resFiles = [];
 
-
   // let token = JSON.parse(localStorage.getItem("token"));
 
   onlineUsers.includes(anotherUser._id)
@@ -149,7 +148,6 @@ const ChatBox = () => {
     };
   }, [friends?.length]);
 
-
   function handleAddFriend() {
     addToFriends(anotherUser._id);
   }
@@ -181,12 +179,20 @@ const ChatBox = () => {
         message: { text: message.text, files: files },
       };
 
-      socket.current.emit("send-message", room.current, msgObj);
-      setMessage({ text: "", files: [] });
+      if (message.files?.length <= 0) {
+        socket.current.emit("send-message", room.current, msgObj);
+      }
+
       setShowFilesDragger(false);
       setDocsModal(false);
+      setMessage({ text: "", files: [] });
       inputRef.current.value = "";
       inputRef.current.focus();
+
+      formData.current.append(
+        "msgObj",
+        JSON.stringify({ ...msgObj, roomID: room.current })
+      );
 
       if (msgObj?.message?.files?.length > 0) {
         let res = await fetch(`${serverUrl}/messages/upload-files`, {
@@ -196,8 +202,11 @@ const ChatBox = () => {
         });
 
         res = await res.json();
-        resFiles = res.files;
-        socket.current.emit("files-uploaded");
+        resFiles = res.message;
+        socket.current.emit("files-uploaded", {
+          roomID: res.roomID,
+          message: resFiles,
+        });
       }
 
       // setShow(false);
@@ -243,7 +252,6 @@ const ChatBox = () => {
       socket.current?.off("reinitiate-chat");
     };
   }, [user, socket.current]);
-
 
   useEffect(() => {
     socket.current?.on("new-message", (msg) => {
@@ -625,8 +633,6 @@ const ChatBox = () => {
       (fr) => fr.friend_id === anotherUser._id && fr.isFavourite
     );
   }
-
- 
 
   function handleFileInput(e) {
     const reader = new FileReader();
