@@ -93,7 +93,7 @@ const UserSearch = () => {
         status: "error",
         isClosable: true,
         duration: 2000,
-        position: "bottom",
+        position: "top",
       });
       return null;
     }
