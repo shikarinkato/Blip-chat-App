@@ -200,6 +200,12 @@ const SideBar = ({ user }) => {
                         transition: { duration: 0.5, ease: "easeInOut" },
                       }
                     }
+                    whileTap={
+                      idx !== sideBarItems.length - 1 && {
+                        background: "rgba(253,113,112,1)",
+                        transition: { duration: 0.5, ease: "easeInOut" },
+                      }
+                    }
                     transition={{ duration: 1, ease: "backOut" }}
                     className={`px-4 ${
                       idx === sideBarItems.length - 1
