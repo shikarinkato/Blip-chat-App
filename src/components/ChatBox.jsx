@@ -1,3 +1,4 @@
+import { useToast } from "@chakra-ui/toast";
 import { faSmile, faStar } from "@fortawesome/free-regular-svg-icons";
 import {
   faArrowLeft,
@@ -13,6 +14,7 @@ import {
   faStar as filledStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { motion, useAnimation } from "framer-motion";
 import React, {
   useCallback,
   useContext,
@@ -24,9 +26,6 @@ import React, {
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Context, headerOptions, serverUrl } from "../context/StateProvider";
 import ChatCard from "./ChatCard";
-import { useToast } from "@chakra-ui/toast";
-import { useAnimation, motion, delay } from "framer-motion";
-import { height } from "@fortawesome/free-brands-svg-icons/fa42Group";
 
 const ChatBox = () => {
   const { userId } = useParams();
@@ -105,21 +104,15 @@ const ChatBox = () => {
   }, []);
 
   const chatFetchingHelper = useCallback(() => {
-    // //console.log(
-    //   "Is includes friends: ",
-    //   friends.some((fr) => fr.friend_id === userId)
-    // );
-    // //console.log("User: ", userId);
-    // //console.log("Friends: ", friends);
     if (friends.some((fr) => fr.friend_id === userId)) {
       if (hasMore.current === true) {
-        //console.log("Called");
         fetchChats(userId, next.current)
           .then((res) => {
             setMessages((prev) => [
               ...res?.chats[0]?.messages[0]?.pgntdRlst,
               ...prev,
             ]);
+            console.log(res.chats);
             isFetching.current = true;
 
             hasMore.current = res.hasMore;
@@ -166,18 +159,36 @@ const ChatBox = () => {
         });
       }
 
-      const files = [];
+      const isFiles = message.files?.length > 0;
 
-      message.files?.forEach((fl) => {
-        // //console.log("File:", fl);
-        files.push({ url: `${user.pic}`, type: `${fl.name.split(".")[1]}` });
-      });
+      const files = [];
+      const tempDate = new Date();
+      isFiles &&
+        message.files?.forEach((fl, idx) => {
+          files.push({
+            url: fl.data,
+            type: `${fl.name.split(".")[1]}`,
+            id: tempDate.toISOString() + idx,
+          });
+        });
 
       let msgObj = {
         sender_id: user._id,
         receiver_id: anotherUser._id,
-        message: { text: message.text, files: files },
+        message: { text: message.text },
       };
+      let tempObj;
+      if (isFiles) {
+        tempObj = {
+          sender_id: user._id,
+          receiver_id: anotherUser._id,
+          createdAt: tempDate.toISOString(),
+          message: message.text,
+          files,
+          time: `${tempDate.getHours()}:${tempDate.getMinutes()}`,
+          isPending: true,
+        };
+      }
 
       if (message.files?.length <= 0) {
         socket.current.emit("send-message", room.current, msgObj);
@@ -189,12 +200,12 @@ const ChatBox = () => {
       inputRef.current.value = "";
       inputRef.current.focus();
 
-      formData.current.append(
-        "msgObj",
-        JSON.stringify({ ...msgObj, roomID: room.current })
-      );
-
-      if (msgObj?.message?.files?.length > 0) {
+      if (isFiles) {
+        formData.current.append(
+          "msgObj",
+          JSON.stringify({ ...msgObj, roomID: room.current })
+        );
+        setMessages((prev) => [...prev, tempObj]);
         let res = await fetch(`${serverUrl}/messages/upload-files`, {
           headers: { Authorization: `Bearer ${token}` },
           method: "POST",
@@ -254,12 +265,6 @@ const ChatBox = () => {
   }, [user, socket.current]);
 
   useEffect(() => {
-    socket.current?.on("new-message", (msg) => {
-      //console.log("New Message");
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-      setMessages((prev) => [...prev, msg]);
-    });
-
     socket.current?.on("join-room", (roomID) => {
       toast({
         title: "Enjoy Chatting with your freind",
@@ -306,6 +311,28 @@ const ChatBox = () => {
       }
     };
   }, [socket.current]);
+
+  useEffect(() => {
+    socket.current?.on("new-message", (msg) => {
+      // console.log("New Message");
+
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      msg.files?.length > 0
+        ? msg.sender_id === user._id
+          ? setMessages((prev) => {
+              const newArr = [...prev];
+              newArr[newArr.length - 1] = msg.message;
+              return newArr;
+            })
+          : setMessages((prev) => [...prev, msg.message])
+        : setMessages((prev) => [...prev, msg.message]);
+      console.log("After: ", messages);
+    });
+
+    return () => {
+      socket.current?.off("new-message");
+    };
+  }, [messages?.length]);
 
   useLayoutEffect(() => {
     if (isFetching.current) {
@@ -876,15 +903,16 @@ const ChatBox = () => {
           animate={animations[4]}
           className="overflow-hidden absolute   px-2 py-2 rounded-md text-slate-400 bg-[#404040] top-4  lg:top-8  xl:top-4  right-1/2 flex items-center justify-center -translate-x-[50%] z-[9]"
         >
-          <motion.div initial={{ rotate: 0 }} animate={animations[5]}>
+          <div className=" animate-spin">
             <div className=" rounded-full bg-[#404040] border-[rgba(253,113,112,1)] border-2 h-[25px] w-[25px]">
               {" "}
             </div>
             <div className=" absolute top-4  bg-[#404040]  h-[25px] w-[25px] rounded-full">
               {" "}
             </div>
-          </motion.div>
+          </div>
         </motion.div>
+
         <div
           className=" px-5 py-3 w-full h-full relative flex flex-col gap-y-3 overflow-y-auto"
           ref={chatRef}

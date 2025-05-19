@@ -10,13 +10,13 @@ import { ChakraProvider } from "@chakra-ui/react";
 //console.log("NOt Runing");
 
 createRoot(document.getElementById("root")).render(
-  // <StrictMode>
-  <ChakraProvider disableGlobalStyle>
-    <BrowserRouter>
-      <StateProvider>
-        <App />
-      </StateProvider>
-    </BrowserRouter>
-  </ChakraProvider>
-  // </StrictMode>
+  <StrictMode>
+    <ChakraProvider disableGlobalStyle>
+      <BrowserRouter>
+        <StateProvider>
+          <App />
+        </StateProvider>
+      </BrowserRouter>
+    </ChakraProvider>
+  </StrictMode>
 );

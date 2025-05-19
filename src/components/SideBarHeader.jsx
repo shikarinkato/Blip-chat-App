@@ -35,7 +35,7 @@ const SideBarHeader = () => {
 
   return (
     <header className="bg-[#1F1F22] flex justify-between items-center w-full py-4 px-4 border-b-[1px] border-b-stone-700">
-      <div className="flex items-center  gap-x-3">
+      <nav className="flex items-center  gap-x-3">
         <div className=" h-[40px] w-[40px] rounded-full overflow-hidden ">
           <img
             src={user?.pic}
@@ -46,8 +46,8 @@ const SideBarHeader = () => {
         <span className=" text-white inline-block text-[18px] sm:text-[16px] font-normal">
           {user?.fullName}
         </span>
-      </div>
-      <div className=" flex gap-x-6 text-white">
+      </nav>
+      <nav className=" flex gap-x-6 text-white">
         <FontAwesomeIcon icon={faBell} />
         <div>
           {/* <FontAwesomeIcon icon={faEllipsis} onClick={handleShow} /> */}
@@ -68,7 +68,7 @@ const SideBarHeader = () => {
            )} */
           }
         </div>
-      </div>
+      </nav>
     </header>
   );
 };

@@ -19,6 +19,7 @@ const Home = () => {
     onlineUsers,
     socket,
     isReconnect,
+    user,
   } = useContext(Context);
 
   const navigate = useNavigate();
@@ -215,7 +216,7 @@ const Home = () => {
         </div>
       </motion.div>
       <div className="flex h-full w-full">
-        <SideBar />
+        <SideBar user={user} />
         {/* </Suspense> */}
         <div className=" h-full  w-full bg-[#1F1F22] relative ">
           <div className=" absolute   h-full overflow-hidden w-full">

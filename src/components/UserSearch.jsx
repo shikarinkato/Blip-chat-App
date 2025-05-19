@@ -133,7 +133,7 @@ const UserSearch = () => {
         </span>
       </div>
       <motion.div
-        className=" absolute text-neutral-600 gap-y-1 overflow-hidden flex-col  overflow-y-auto bg-[#1F1F22] flex justify-start items-center w-full z-[999] mt-3 border-t-[1px] border-solid border-neutral-700"
+        className=" absolute text-neutral-600 gap-y-1 overflow-hidden flex-col  overflow-y-auto bg-[#1F1F22] flex justify-start items-center w-full z-[99] mt-3 border-t-[1px] border-solid border-neutral-700"
         initial={{ height: 0 }}
         animate={resultBox}
       >
