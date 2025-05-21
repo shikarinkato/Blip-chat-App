@@ -1,10 +1,9 @@
-import React, { useContext, useLayoutEffect, useState } from "react";
-import { Context } from "../context/StateProvider";
-import { AnimatePresence, useAnimation } from "framer-motion";
-import { useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import Input from "./Input";
 import { useToast } from "@chakra-ui/toast";
+import { motion } from "framer-motion";
+import { useContext, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Context } from "../context/StateProvider";
+import Input from "./Input";
 const Login = () => {
   const { login } = useContext(Context);
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -13,7 +12,6 @@ const Login = () => {
 
   // let animations = [useAnimation(), useAnimation(), useAnimation()];
 
-  const navigate = useNavigate();
   let path = useLocation();
   path = path.pathname.split("/");
 
@@ -97,7 +95,7 @@ const Login = () => {
         });
       }
 
-      //console.log(loading);
+      ////(loading);
 
       let isEmail = formData.email.includes("@");
 
@@ -131,12 +129,6 @@ const Login = () => {
     }
   }
 
-  // useLayoutEffect(() => {
-  //   handleAnimations();
-  //   //console.log("InnerWidth in Login: ", window.innerWidth);
-  // }, [isLogin]);
-
-  // //console.log(loading)
   return (
     <div className="flex flex-col justify-center items-center w-full h-full gap-y-2">
       <motion.form
@@ -285,7 +277,7 @@ const Login = () => {
             delay: 1.3,
           },
         }}
-        className="  text-[16px] md:text-[16px] lg:text-[17px]   xl:text-[14px] 2xl:text-[18px] text-center font-normal   w-full"
+        className=" text-[18px]   xsm:text-[16px] md:text-[18px] lg:text-[20px]  2xl:text-[18px] text-center font-normal   w-full"
       >
         Welcome back! Log in and continue your chat adventures
       </motion.h6>

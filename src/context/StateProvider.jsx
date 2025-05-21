@@ -172,7 +172,7 @@ function StateProvider({ children }) {
       res = await res.json();
       if (res.success === true) {
         setUser(res.user);
-        // //console.log("User: ", res);
+        // ////("User: ", res);
         setFriends(res.user?.friends);
       } else {
         throw new Error(res.message);
@@ -183,7 +183,7 @@ function StateProvider({ children }) {
         error.name === "TokenExpiredError" ||
         error.message === "Token has expired"
       ) {
-        //console.log("Token error ");
+        ////("Token error ");
         localStorage.removeItem("token");
         navigate("/auth");
         setIsAuthenticated(false);
@@ -350,7 +350,7 @@ function StateProvider({ children }) {
     }
   };
 
-  // //console.log("Friends in Provider: ", friends);
+  // ////("Friends in Provider: ", friends);
 
   return (
     <Context.Provider

@@ -37,7 +37,7 @@ const Home = () => {
       } else {
         isReconnect.current = true;
       }
-      //console.log("Socket connected");
+      ////("Socket connected");
     });
 
     socket.current?.on("error", handleSocketError);
@@ -80,8 +80,8 @@ const Home = () => {
     });
     // }
 
-    //console.log("Happening");
-    //console.log("Socket: ", socket.current);
+    ////("Happening");
+    ////("Socket: ", socket.current);
 
     const removeLoader = () => {
       if (ldrTmout) clearTimeout(ldrTmout);
@@ -108,12 +108,12 @@ const Home = () => {
 
     asyncInit()
       .catch((err) => {
-        console.log(err);
+        //(err);
       })
       .finally(() => {});
 
     socket.current?.on("disconnect", (id) => {
-      //console.log(id);
+      ////(id);
       // toast({
       //   title: `User ${id} left the chat`,
       //   duration: 2000,
@@ -123,7 +123,7 @@ const Home = () => {
     });
 
     return () => {
-      // console.log("Home Unmounted");
+      // //("Home Unmounted");
       clearTimeout(ldrTmout);
       socket.current?.off("join-room");
       socket.current?.off("error");
@@ -133,20 +133,20 @@ const Home = () => {
       socket.current?.off("join-room");
       socket.current?.off("initiate-chat");
 
-      //console.log("Called Disconnect");
+      ////("Called Disconnect");
       socket.current?.disconnect();
     };
   }, []);
 
   useEffect(() => {
     if (socket.current && friends?.length > 0) {
-      // console.log("called");
+      // //("called");
       socket.current?.emit("call-update-users");
       socket.current?.on("update-active-users", hndlUpdtActvs);
     }
 
     return () => {
-      // console.log("Home Unmounted 2");
+      // //("Home Unmounted 2");
 
       socket.current?.off("call-update-users");
       socket.current?.off("update-active-users");
@@ -161,15 +161,15 @@ const Home = () => {
         .map((fr) => (arr.includes(fr.friend_id) ? fr.friend_id : null))
         .filter((fr) => fr !== null);
 
-      // console.log("Online In Home: ", online);
-      // console.log("Friends: ", friends);
-      // console.log("Listening updated Arr: ", arr);
+      // //("Online In Home: ", online);
+      // //("Friends: ", friends);
+      // //("Listening updated Arr: ", arr);
 
       const isIncludes = online
         .map((user) => (onlineUsers.includes(user) ? true : false))
         .some((item) => item === true);
 
-      // //console.log("Is Includes: ", isIncludes);
+      // ////("Is Includes: ", isIncludes);
 
       !isIncludes && setOnlineUsers(online);
 
@@ -180,7 +180,7 @@ const Home = () => {
     [friends?.length, onlineUsers?.length]
   );
 
-  console.log("Home Rendered");
+  //("Home Rendered");
 
   return (
     <div className="h-dvh w-dvw">
@@ -195,7 +195,7 @@ const Home = () => {
           <div>
             <FontAwesomeIcon
               icon={faMessage}
-              className="  text-white h-[40px] w-[40px] sm:h-[60px] sm:w-[60px] absolute -right-10 -top-10"
+              className="  text-white h-[40px] w-[40px] sm:h-[60px] sm:w-[60px] absolute right-2 -top-8 sm:-right-10 sm:-top-10"
             />
             <h1 className=" text-7xl sm:text-9xl font-bold text-white  uppercase tracking-wider ">
               Blip
@@ -207,8 +207,10 @@ const Home = () => {
               initial={{ scaleX: 0 }}
               animate={{
                 scaleX: 1,
-                transformOrigin: "left",
                 transition: { duration: 3, ease: "easeInOut" },
+              }}
+              style={{
+                transformOrigin: "left",
               }}
               className=" w-full h-1 rounded-md bg-white absolute"
             ></motion.div>

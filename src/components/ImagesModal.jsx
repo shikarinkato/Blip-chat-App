@@ -34,7 +34,7 @@ const ImagesModal = ({ hndlCls, files }) => {
           // alert(drctn);
           const prvX =
             +boxRefs[idx]?.current.style.transform.slice(11, 14) + 115;
-          console.log(prvX);
+          //(prvX);
           anmatn.start({
             x: `${prvX}%`,
 
@@ -63,7 +63,7 @@ const ImagesModal = ({ hndlCls, files }) => {
 
   const sldHndlr = useCallback(
     (e) => {
-      // console.log(e.target.parentNode);
+      // //(e.target.parentNode);
       if (
         (e.target.parentNode.id === "prev" || e.target.id === "prev") &&
         active >= 1
@@ -88,15 +88,15 @@ const ImagesModal = ({ hndlCls, files }) => {
 
   useEffect(() => {
     // anmtnsCalc();
-    // console.log(boxRef?.current);
+    // //(boxRef?.current);
   }, []);
 
-  // console.log(files);
+  // //(files);
 
   const isLast = active === files.length - 1;
   const isFirst = active === 0;
 
-  console.log(isLast);
+  //(isLast);
 
   const isImg = (file) =>
     [

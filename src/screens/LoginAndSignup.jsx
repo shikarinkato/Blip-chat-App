@@ -1,21 +1,13 @@
 import { faMessage } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion, useAnimation } from "framer-motion";
-import React, {
-  Suspense,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { Suspense, useCallback, useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Loader from "../components/Loader";
 import { Context } from "../context/StateProvider";
 
 const LoginAndSignup = ({ Children }) => {
   const { isLogin, setIsLogin } = useContext(Context);
-  // const [currMeasures, setCurrMeasures] = useState({ height: 10, width: 30 });
-  // const [innerWidth, setinnerWidth] = useState(window.innerWidth);
 
   const log_SignUp_Animation = useAnimation();
   const containerAnimation = useAnimation();
@@ -28,14 +20,13 @@ const LoginAndSignup = ({ Children }) => {
   };
 
   async function innerWidthCalc() {
-    // //console.log(window.innerWidth);
-    return window.innerWidth;
+    return { width: window.innerWidth, height: window.innerHeight };
   }
 
   async function innerWidthChecker() {
-    let width = await innerWidthCalc();
+    let { width, height } = await innerWidthCalc();
 
-    //console.log("InnerWidth: ", width);
+    ////("InnerWidth: ", width);
 
     if (width > 1280) {
       if (isLogin) {
@@ -47,59 +38,77 @@ const LoginAndSignup = ({ Children }) => {
       }
     } else if (width <= 1280 && width > 1024) {
       if (isLogin) {
-        // setCurrMeasures({ height: 35, width: 30 });
         handleAnimation(35, 30);
       } else {
-        // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(50, 35);
+        handleAnimation(43, 35);
       }
     } else if (width <= 1024 && width > 915) {
       if (isLogin) {
-        // setCurrMeasures({ height: 35, width: 25 });
-        handleAnimation(40, 30);
+        let hght = height < 1000 ? 43 : 30;
+        handleAnimation(hght, 30);
       } else {
-        // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(45, 30);
+        let hght = height < 1000 ? 60 : 45;
+        handleAnimation(hght, 30);
       }
     } else if (width <= 915 && width > 800) {
       if (isLogin) {
-        // setCurrMeasures({ height: 40, width: 30 });
-        handleAnimation(40, 30);
+        let hght = height > 1200 ? 30 : 35;
+        handleAnimation(hght, 30);
       } else {
-        // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(55, 30);
+        let hght = height > 1200 ? 47 : 52;
+        handleAnimation(hght, 28);
       }
     } else if (width <= 800 && width > 600) {
       if (isLogin) {
-        // setCurrMeasures({ height: 35, width: 25 });
         handleAnimation(40, 30);
       } else {
-        // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(60, 35);
+        handleAnimation(60, 30);
       }
-    } else if (width <= 600 && width >= 414) {
+    } else if (width <= 600 && width > 414) {
+      if (isLogin) {
+        handleAnimation(53, 45);
+      } else {
+        handleAnimation(85, 45);
+      }
+    } else if (width <= 414 && width >= 390) {
+      if (isLogin) {
+        let hght = height < 750 ? 52 : 45;
+        handleAnimation(hght, 40);
+      } else {
+        let hght = height < 750 ? 84 : height > 750 && height < 850 ? 75 : 70;
+        handleAnimation(hght, 40);
+      }
+    } else if (width <= 375 && width > 360) {
+      if (isLogin) {
+        let hght = height > 700 ? 50 : 58;
+        // setCurrMeasures({ height: 35, width: 45 });
+        handleAnimation(hght, 43);
+      } else {
+        let hght = height > 700 ? 75 : 98;
+        handleAnimation(hght, 40);
+      }
+    } else if (width <= 360 && width > 350) {
+      if (isLogin) {
+        let hght = height > 700 ? 52 : 60;
+        handleAnimation(hght, 43);
+      } else {
+        let hght = height > 700 ? 85 : 100;
+        handleAnimation(hght, 43);
+      }
+    } else if (width < 350 && width > 320) {
       if (isLogin) {
         // setCurrMeasures({ height: 35, width: 45 });
-        handleAnimation(45, 45);
+        handleAnimation(45, 35);
       } else {
         // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(70, 40);
-      }
-    } else if (width <= 414 && width > 390) {
-      if (isLogin) {
-        // setCurrMeasures({ height: 35, width: 45 });
-        handleAnimation(45, 40);
-      } else {
-        // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(70, 40);
+        handleAnimation(70, 35);
       }
     } else {
       if (isLogin) {
         // setCurrMeasures({ height: 43, width: 63 });
-        handleAnimation(60, 45);
+        handleAnimation(59, 40);
       } else {
-        // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(85, 45);
+        handleAnimation(98, 40);
       }
     }
   }
@@ -107,8 +116,6 @@ const LoginAndSignup = ({ Children }) => {
   useEffect(() => {
     window.addEventListener("resize", widthHandler);
 
-    // //console.log("InnerWidth: ", innerWidth);
-    // //console.log("IsLogin: ", isLogin);
     innerWidthChecker();
 
     return () => {
@@ -116,17 +123,7 @@ const LoginAndSignup = ({ Children }) => {
     };
   }, [isLogin]);
 
-  // useEffect(() => {
-  //   // handleAnimation();
-
-  //   // //console.log("Width: ", currMeasures.width);
-  //   // //console.log("Height: ", currMeasures.height);
-
-  // }, [isLogin, currMeasures.width, currMeasures.height]);
-
   const handleAnimation = (height, width) => {
-    // //console.log("Height: ", height);
-    // //console.log("Width: ", width);
     if (isLogin) {
       containerAnimation.start({
         height: `${height}vmax`,
@@ -157,8 +154,17 @@ const LoginAndSignup = ({ Children }) => {
 
   const widthHandler = () => {
     innerWidthChecker();
-    // //console.log("InnerWidth in LoginandSignup: ", window.innerWidth);
   };
+
+  let login = useCallback((e) => {
+    e.stopPropagation();
+    setIsLogin(true);
+  }, []);
+
+  let signUp = useCallback((e) => {
+    e.stopPropagation();
+    setIsLogin(false);
+  }, []);
 
   return (
     <div className=" h-full md:w-full  flex justify-center items-center ">
@@ -209,6 +215,7 @@ const LoginAndSignup = ({ Children }) => {
             animate={log_SignUp_Animation}
             transition={{
               duration: 0.7,
+              delay: 0.2,
               ease: "easeInOut",
               type: "spring",
             }}
@@ -217,10 +224,7 @@ const LoginAndSignup = ({ Children }) => {
           <button
             style={{ outline: "none" }}
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsLogin(true);
-            }}
+            onClick={login}
             className={` border-none  mr-2 py-0 w-1/2 bg-transparent ${
               isLogin ? "text-white" : "text-black"
             } text-[17px] font-medium relative z-10 text-center text-nowrap`}
@@ -230,10 +234,7 @@ const LoginAndSignup = ({ Children }) => {
           <button
             style={{ outline: "none" }}
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsLogin(false);
-            }}
+            onClick={signUp}
             className={` border-none  mr-2 py-0 w-1/2 bg-transparent ${
               !isLogin ? "text-white" : "text-black"
             } text-[17px] font-medium relative z-10 text-center flex-nowrap text-nowrap`}

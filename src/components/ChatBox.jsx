@@ -14,7 +14,7 @@ import {
   faStar as filledStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { motion, useAnimation } from "framer-motion";
+import { AnimatePresence, delay, motion, useAnimation } from "framer-motion";
 import React, {
   useCallback,
   useContext,
@@ -54,6 +54,7 @@ const ChatBox = () => {
   const [showfilesDragger, setShowFilesDragger] = useState(false);
   const [docsModal, setDocsModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [userTyping, setUserTyping] = useState(null);
 
   const token = JSON.parse(localStorage.getItem("token"));
 
@@ -77,6 +78,7 @@ const ChatBox = () => {
   const fetchRef = useRef(null);
   const chatParent = useRef(null);
   const chatPrvsHght = useRef(0);
+  const typngIndctr = useRef(null);
 
   let resFiles = [];
 
@@ -87,32 +89,41 @@ const ChatBox = () => {
     : (isActive.current = false);
 
   let timer = useRef();
-  const messageHandler = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (timer.current) {
-      clearTimeout(timer.current);
-    }
 
-    timer.current = setTimeout(() => {
-      setMessage((prev) => ({ ...prev, text: e.target.value }));
-    }, 400);
+  const messageHandler = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
+      socket.current?.emit("user-typing", {
+        user: user._id,
+        room: room.current,
+      });
 
-    return () => {
-      clearTimeout(timer.current);
-    };
-  }, []);
+      timer.current = setTimeout(() => {
+        setMessage((prev) => ({ ...prev, text: e.target.value }));
+      }, 400);
+
+      return () => {
+        clearTimeout(timer.current);
+      };
+    },
+    [user, room]
+  );
 
   const chatFetchingHelper = useCallback(() => {
+    (friends);
     if (friends.some((fr) => fr.friend_id === userId)) {
       if (hasMore.current === true) {
         fetchChats(userId, next.current)
           .then((res) => {
-            setMessages((prev) => [
-              ...res?.chats[0]?.messages[0]?.pgntdRlst,
-              ...prev,
-            ]);
-            console.log(res.chats);
+            res.chats?.length > 0 &&
+              setMessages((prev) => [
+                ...res?.chats[0]?.messages[0]?.pgntdRlst,
+                ...prev,
+              ]);
             isFetching.current = true;
 
             hasMore.current = res.hasMore;
@@ -121,7 +132,7 @@ const ChatBox = () => {
           })
           .catch((err) => {
             setLoading(false);
-            //console.log(err);
+            ////(err);
           });
       } else {
         setLoading(false);
@@ -132,8 +143,6 @@ const ChatBox = () => {
   }, [friends?.length]);
 
   useEffect(() => {
-    chatFetchingHelper();
-
     const chatDiv = chatRef.current;
     chatDiv?.addEventListener("scroll", scrollHandler);
     return () => {
@@ -223,10 +232,10 @@ const ChatBox = () => {
       // setShow(false);
       formData.current = new FormData();
 
-      //console.log("Current Room ID: ", room.current);
+      ////("Current Room ID: ", room.current);
 
-      // //console.log("Current room: ", room.current);
-      // //console.log("Message: ", msgObj);
+      // ////("Current room: ", room.current);
+      // ////("Message: ", msgObj);
 
       return resFiles;
     },
@@ -235,8 +244,8 @@ const ChatBox = () => {
 
   useEffect(() => {
     async function initiateChat() {
-      // //console.log("Chat initiated");
-      // //console.log("Socket: ",socket.current);
+      // ////("Chat initiated");
+      // ////("Socket: ",socket.current);
       socket.current?.emit(
         "initiate-chat",
         anotherUser.user + user._id,
@@ -252,10 +261,12 @@ const ChatBox = () => {
 
     // let timer = setTimeout(() => {
     // if (socket.current) {
-    // //console.log("Clled");
+    // ////("Clled");
     // }
     initiateChat();
     // }, 2000);
+
+    friends?.length > 0 && chatFetchingHelper();
 
     return () => {
       // clearTimeout(timer);
@@ -293,7 +304,7 @@ const ChatBox = () => {
     });
 
     socket.current?.on("files-uploaded", () => {
-      //console.log("Files Uploaded");
+      ////("Files Uploaded");
       const newArr = [...messages];
       newArr[newArr.length - 1].files = resFiles.files;
       setMessages(newArr);
@@ -301,7 +312,7 @@ const ChatBox = () => {
 
     return () => {
       if (socket.current) {
-        // //console.log("Abhi zinda hu");
+        // ////("Abhi zinda hu");
         socket.current?.off("new-message");
         socket.current?.off("room-already");
         socket.current?.off("room-joined");
@@ -314,10 +325,10 @@ const ChatBox = () => {
 
   useEffect(() => {
     socket.current?.on("new-message", (msg) => {
-      // console.log("New Message");
+      ("New Message");
 
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
-      msg.files?.length > 0
+      msg?.files?.length > 0
         ? msg.sender_id === user._id
           ? setMessages((prev) => {
               const newArr = [...prev];
@@ -326,7 +337,6 @@ const ChatBox = () => {
             })
           : setMessages((prev) => [...prev, msg.message])
         : setMessages((prev) => [...prev, msg.message]);
-      console.log("After: ", messages);
     });
 
     return () => {
@@ -345,6 +355,42 @@ const ChatBox = () => {
     chatPrvsHght.current = chatRef.current.scrollHeight;
   }, [messages?.length]);
 
+  useLayoutEffect(() => {
+    let timer = null;
+    socket.current?.on("friend-typing", (typngObj) => {
+      (typngObj);
+      const chatDiv = chatRef.current;
+      if (
+        chatRef.current.scrollHeight - chatRef.current.scrollTop <=
+        chatRef.current.clientHeight + 10
+      ) {
+        if (timer) {
+          clearTimeout(timer);
+          ("yes");
+        }
+
+        timer = setTimeout(() => {
+          chatRef.current.scrollTop = chatRef.current.scrollHeight;
+          ("Timer: ", chatRef.current.scrollHeight);
+        }, 100);
+      }
+      if (userTyping === null) {
+        setUserTyping(typngObj.user);
+      }
+
+      if (typngIndctr.current) {
+        clearTimeout(typngIndctr.current);
+      }
+
+      typngIndctr.current = setTimeout(() => {
+        setUserTyping(null);
+      }, 500);
+    });
+    return () => {
+      socket.current?.off("friend-typing");
+    };
+  }, [socket.current, chatRef.current]);
+
   let isNestHub = 0;
 
   const filesModalHandler = useCallback(
@@ -354,7 +400,6 @@ const ChatBox = () => {
       isNestHub = width >= 1024 && width < 1280 && hght <= 600;
 
       if (width >= 375 && width < 395) {
-        console.log("Called 1");
         if (showfilesDragger) {
           filesDragger.current.scrollTop = 0;
           animations[6].start({
@@ -363,7 +408,6 @@ const ChatBox = () => {
             transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
           });
         } else {
-          console.log("Called ");
           animations[6].start({
             width: "auto",
             height: "38vh",
@@ -372,8 +416,6 @@ const ChatBox = () => {
           });
         }
       } else if (width >= 395 && width < 640) {
-        console.log("Called 2");
-
         if (showfilesDragger) {
           filesDragger.current.scrollTop = 0;
           animations[6].start({
@@ -382,7 +424,6 @@ const ChatBox = () => {
             transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
           });
         } else {
-          console.log("Called ");
           animations[6].start({
             width: "auto",
             height: "28vh",
@@ -391,7 +432,7 @@ const ChatBox = () => {
           });
         }
       } else if (width >= 640 && width < 820) {
-        console.log("Called 2");
+        //("Called 2");
 
         if (showfilesDragger) {
           filesDragger.current.scrollTop = 0;
@@ -401,7 +442,7 @@ const ChatBox = () => {
             transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
           });
         } else {
-          console.log("Called ");
+          //("Called ");
           animations[6].start({
             width: "auto",
             height: "28vh",
@@ -410,7 +451,7 @@ const ChatBox = () => {
           });
         }
       } else if (width >= 820 && width < 1024) {
-        console.log("Called 3");
+        //("Called 3");
 
         if (showfilesDragger) {
           filesDragger.current.scrollTop = 0;
@@ -420,7 +461,7 @@ const ChatBox = () => {
             transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
           });
         } else {
-          console.log("Called ");
+          //("Called ");
           animations[6].start({
             width: "auto",
             height: "24vh",
@@ -429,7 +470,7 @@ const ChatBox = () => {
           });
         }
       } else if (isNestHub) {
-        console.log("Called 4");
+        //("Called 4");
 
         if (showfilesDragger) {
           filesDragger.current.scrollTop = 0;
@@ -439,7 +480,7 @@ const ChatBox = () => {
             transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
           });
         } else {
-          console.log("Called ");
+          //("Called ");
           animations[6].start({
             width: "auto",
             height: "40vh",
@@ -448,7 +489,7 @@ const ChatBox = () => {
           });
         }
       } else if (width >= 1024 && width < 1280) {
-        console.log("Called 5");
+        //("Called 5");
 
         if (showfilesDragger) {
           filesDragger.current.scrollTop = 0;
@@ -458,7 +499,7 @@ const ChatBox = () => {
             transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
           });
         } else {
-          console.log("Called ");
+          //("Called ");
           animations[6].start({
             width: "auto",
             height: "30vh",
@@ -467,7 +508,7 @@ const ChatBox = () => {
           });
         }
       } else if (width >= 1280) {
-        console.log("Called 5");
+        //("Called 5");
 
         if (showfilesDragger) {
           filesDragger.current.scrollTop = 0;
@@ -477,7 +518,7 @@ const ChatBox = () => {
             transistion: { duration: 1, delay: 0.2, ease: "easeInOut" },
           });
         } else {
-          console.log("Called ");
+          //("Called ");
           animations[6].start({
             width: "auto",
             height: "32vh",
@@ -493,7 +534,6 @@ const ChatBox = () => {
   let wndwReszHndlr = useCallback(
     (width) => {
       filesModalHandler(width);
-      console.log("Called Rezise");
     },
     [showfilesDragger]
   );
@@ -501,7 +541,7 @@ const ChatBox = () => {
   useLayoutEffect(() => {
     const width = window?.innerWidth;
     if (show) {
-      // //console.log("Called show");
+      // ////("Called show");
       animations[0].start({
         opacity: 1,
         x: 0,
@@ -728,26 +768,61 @@ const ChatBox = () => {
   }
 
   const scrollHandler = async (e) => {
-    if (fetchRef.current !== null) {
+    if (chatRef.current.scrollTop === 0 && fetchRef.current !== null) {
       clearTimeout(fetchRef.current);
     }
 
     if (chatRef.current.scrollTop === 0 && !loading) {
-      //console.log(fetchRef.current);
+      ////(fetchRef.current);
       fetchRef.current = setTimeout(() => {
         chatFetchingHelper();
+        ("Called Chat Fetcher 2");
       }, 500);
       setLoading(true);
     }
   };
 
+  const ulVariants = {
+    down: { y: 0, opacity: 0 },
+    up: {
+      y: "-20%",
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        staggerChildren: 0.7,
+      },
+    },
+    exit: {
+      y: 0,
+      opacity: 0,
+    },
+  };
+
+  const liVariants = {
+    down: { y: 2 },
+    up: {
+      y: -5,
+      transition: {
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut",
+      },
+    },
+  };
+
   let orgDay;
 
+  let userType = useCallback(
+    (e) => {
+      // e.stopPropagation();
+      // chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      // setUserTyping(!userTyping);
+    },
+    [chatRef, userTyping]
+  );
+
   return (
-    <div
-      className=" text-white w-full h-full flex justify-center  flex-col relative z-[99] bg-[#1f1f22] sm:bg-transparent overflow-hidden"
-      // style={{ background: "rgba(0,0,0,0.5)" }}
-    >
+    <div className=" text-white w-full h-full flex justify-center  flex-col relative z-[99] bg-[#1f1f22] sm:bg-transparent overflow-hidden">
       <header className=" bg-[#1F1F22] w-full flex justify-between items-center h-20 border-b-[1px] border-b-gray-600 xl:border-none relative z-10 ">
         <nav className=" flex gap-4 xl:justify-start items-center gap-x-6 h-full overflow-hidden w-5/6 sm:w-3/5 xl:w-1/2">
           <div
@@ -897,13 +972,13 @@ const ChatBox = () => {
           </button>
         </motion.div>
       </header>
-      <div className=" w-full h-full overflow-y-auto" ref={chatParent}>
+      <div className=" w-full h-[82%] sm:h-[85%] lg:h-[78%] " ref={chatParent}>
         <motion.div
           initial={{ y: 0 }}
           animate={animations[4]}
           className="overflow-hidden absolute   px-2 py-2 rounded-md text-slate-400 bg-[#404040] top-4  lg:top-8  xl:top-4  right-1/2 flex items-center justify-center -translate-x-[50%] z-[9]"
         >
-          <div className=" animate-spin">
+          <div className={loading && "animate-spin"}>
             <div className=" rounded-full bg-[#404040] border-[rgba(253,113,112,1)] border-2 h-[25px] w-[25px]">
               {" "}
             </div>
@@ -914,6 +989,7 @@ const ChatBox = () => {
         </motion.div>
 
         <div
+          id="chatContainer"
           className=" px-5 py-3 w-full h-full relative flex flex-col gap-y-3 overflow-y-auto"
           ref={chatRef}
         >
@@ -949,14 +1025,55 @@ const ChatBox = () => {
                 </React.Fragment>
               );
             })}
+          <AnimatePresence>
+            {userTyping && (
+              <div className=" flex gap-x-2 justify-start items-center">
+                {anotherUser && (
+                  <div className=" relative ">
+                    <span className=" p-1 rounded-full bg-green-500 absolute -right-2  overflow-hidden" />
+                    <img
+                      loading="lazy"
+                      className=" w-[30px] h-[30px] md:h-[40px] md:w-[40px] lg:h-[50px] lg:w-[50px] rounded-full object-cover"
+                      src={anotherUser.pic}
+                      alt="anotherUser's_image"
+                    />
+                  </div>
+                )}
+                <motion.ul
+                  variants={ulVariants}
+                  initial="down"
+                  animate="up"
+                  exit="exit"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, rgba(253,113,113,1) 0%, rgba(240,80,153,1) 100%)",
+                  }}
+                  className="  rounded-lg flex w-14 justify-around gap-x-2 p-1 px-2 py-2 ml-4 my-3 sm:ml-10 sm:m-6 "
+                >
+                  <motion.li
+                    variants={liVariants}
+                    className="bg-white h-[6px] w-[6px] rounded-full"
+                  />
+                  <motion.li
+                    variants={liVariants}
+                    className="bg-white h-[6px] w-[6px] rounded-full"
+                  />
+                  <motion.li
+                    variants={liVariants}
+                    className="bg-white h-[6px] w-[6px] rounded-full"
+                  />
+                </motion.ul>
+              </div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-      <div className=" w-full  flex justify-center items-center mb-2 sm:mb-4 pt-1 sm:pt-3 relative bottom-0 xl:bottom-3 border-t-[1px] xl:border-none border-t-gray-600">
+      <div className=" w-full  flex flex-col justify-center items-start mb-2 sm:mb-4 pt-1 sm:pt-3 relative bottom-0 xl:bottom-3 border-t-[1px] xl:border-none border-t-gray-600">
         <form
           id="msg_form"
           onSubmit={handleForm}
           onClick={unvrslFrmHndlr}
-          className=" flex justify-center items-center w-[90%] sm:w-10/12 gap-x-3 relative"
+          className=" flex justify-center items-center w-[90%] sm:w-10/12 gap-x-3 relative self-center"
         >
           <div className=" w-[90%] sm:w-4/5 bg-[#1F1F22] rounded-lg flex justify-center items-center px-2 py-1 shadow-lg xl:shadow-sm  shadow-[rgba(255,255,255,0.1)] relative">
             <motion.div
@@ -1047,13 +1164,7 @@ const ChatBox = () => {
                 icon={faClose}
               />
             </motion.div>
-            <span
-              onClick={(e) => {
-                //console.log("Called Smile");
-                e.stopPropagation();
-                setLoading(!loading);
-              }}
-            >
+            <span onClick={userType}>
               <FontAwesomeIcon icon={faSmile} className=" text-stone-500" />
             </span>
             <input

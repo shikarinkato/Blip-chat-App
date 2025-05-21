@@ -134,13 +134,13 @@ const Users = () => {
         frndUsrs.current = friendsProfiles.chats;
       }
 
-      // //console.log("Done");
+      // ////("Done");
     };
     if (friends?.length > 0) {
       fetchProfiles()
         .then(() => {
           setIsFetched(true);
-          // //console.log("Fetched");
+          // ////("Fetched");
         })
         .catch((err) => {
           console.error(err);
@@ -162,8 +162,11 @@ const Users = () => {
     };
   }, []);
 
+  // (friends);
+  // (onlineUsers);
+
   function lstnMsgs(msgs) {
-    //console.log(msgs)
+    ////(msgs)
     setBackgroundMsgs((prev) => [...prev, msgs]);
   }
   function lstnOldMsgs(msgs) {

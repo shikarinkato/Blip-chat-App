@@ -14,7 +14,7 @@ const AuthScreens = () => {
     let token = JSON.parse(localStorage.getItem("token"));
     if (!token) {
       if (isLogin) {
-        //console.log("Called");
+        ////("Called");
         navigate("/auth/login");
       } else {
         navigate("/auth/signup");

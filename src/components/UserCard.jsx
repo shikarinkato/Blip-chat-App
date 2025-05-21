@@ -44,6 +44,7 @@ const UserCard = ({
       : "Yesterday";
 
   function newChat(id) {
+    id = anotherUser.user ? id : anotherUser._id;
     createChat(id);
   }
 

@@ -25,8 +25,8 @@ const Input = ({ type, placeholder, onChange, height, value }) => {
     setInput(value);
   }, [value]);
 
-  // //console.log("value rendered", value);
-  // //console.log("Current input Rendered", input);
+  // ////("value rendered", value);
+  // ////("Current input Rendered", input);
 
   return (
     <div className=" relative w-full">

@@ -50,7 +50,7 @@ const ChatCard = ({ chat, anotherUser }) => {
           </div>
         )}
         <div
-          className={` flex !pb-5 sm:py-1 sm:px-2  xl:py-3 xl:px-3  px-2  rounded-lg text-[15px] sm:text-[17px] text-neutral-100 lg:max-w-[40vw] xl:max-w-[30vw]  min-w-16 relative max-w-48 flex-col items-start
+          className={` flex !pb-5 pt-1 sm:py-1 sm:px-2  xl:py-3 xl:px-3  px-2  rounded-lg text-[15px] sm:text-[17px] text-neutral-100 lg:max-w-[40vw] xl:max-w-[30vw]  min-w-16 relative max-w-48 flex-col items-start
           `}
           style={{
             background: !isSameUser

@@ -234,10 +234,10 @@ const SignUp = () => {
     }
   }
 
-  // //console.log(formData);
+  // ////(formData);
 
   return (
-    <div className=" flex flex-col  py-3 w-full text-center justify-center items-center pt-8 lg:pt-8">
+    <div className=" flex flex-col  py-3 w-full text-center justify-center items-center mt-6 pt-8 lg:pt-8">
       <form
         // initial={{ display: "none" }}
         // animate={{
@@ -342,7 +342,7 @@ const SignUp = () => {
       <motion.h6
         initial={{ y: "50%", opacity: 0 }}
         animate={animations[4]}
-        className="text-[14px] sm:text-[15px] xl:text-[16px] 2xl:text-[18px] text-center font-normal   bottom-1"
+        className="text-[18px]   xl:text-[18px] 2xl:text-[18px] text-center font-normal "
       >
         Join the party! Sign up and start chatting with awesome people!
       </motion.h6>
