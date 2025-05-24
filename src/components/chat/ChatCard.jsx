@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
-import { Context } from "../context/StateProvider";
+import { Context } from "../../context/StateProvider";
 import { AnimatePresence } from "framer-motion";
 import ImagesModal from "./ImagesModal";
 

@@ -37,7 +37,6 @@ function StateProvider({ children }) {
   let socket = useRef(null);
   let isReconnect = useRef(false);
 
-
   const value = useMemo(
     () => ({
       isLogin,
@@ -92,27 +91,70 @@ function StateProvider({ children }) {
     }
   };
 
+  const loginOAuth = async (type) => {
+    try {
+      // alert(type);
+      // let res = await fetch(`${serverUrl}/user/oauth/login?&type=${type}`, {
+      //   method: "PUT",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ email_Usrnme_mobile: email, password }),
+      // });
+
+      window.location.href = `${serverUrl}/user/oauth/login?type=${type}`;
+
+      // let data = await res.json();
+
+      // if (data.success === true) {
+      // localStorage.setItem("token", JSON.stringify(data.token));
+      // setIsAuthenticated(true);
+      // } else {
+      //   throw new Error(data.message);
+      // }
+    } catch (error) {
+      return toast({
+        title: `${error.message}`,
+        status: "error",
+        isClosable: true,
+        duration: 2000,
+        position: "bottom",
+      });
+    }
+  };
+
   const signUp = async (userData) => {
     try {
       let res = await fetch(`${serverUrl}/user/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          pic: userData.pic,
-          userName: userData.userName,
-          email: userData.email,
-          password: userData.password,
-          fullName: userData.fullName,
-        }),
+        body: userData.current,
       });
 
       let data = await res.json();
 
-      if (data.success === true) {
-        return data;
-      } else {
-        throw new Error(data.message);
-      }
+      return data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  const signUpOAuth = async (type) => {
+    try {
+      // alert(type);
+
+      // let res = await fetch(`${serverUrl}/user/oauth/google/register`, {
+      //   method: "GET",
+      // });
+
+      window.location.href = `${serverUrl}/user/oauth/register?type=${type}`;
+
+      // console.log(res);
+      // window.location.href = res;
+
+      // if (data.success === true) {
+      //   console.log(data);
+      //   // return data;
+      // } else {
+      //   throw new Error(data.message);
+      // }
     } catch (error) {
       throw new Error(error.message);
     }
@@ -368,7 +410,9 @@ function StateProvider({ children }) {
         setFriends: value.setFriends,
         setBackgroundMsgs: value.setBackgroundMsgs,
         login,
+        loginOAuth,
         signUp,
+        signUpOAuth,
         getAllFriends,
         getProfile,
         getFriendsProfiles,

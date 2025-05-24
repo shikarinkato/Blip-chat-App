@@ -1,15 +1,11 @@
-import { faCamera, faVolumeHigh } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { motion, useAnimation } from "framer-motion";
-import React, { useContext, useLayoutEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import {
-  CLOUDINARY_URL,
-  Context,
-  REACT_APP_CLOUDINARY_UPLOAD_PRESET,
-} from "../context/StateProvider";
-import Input from "./Input";
 import { useToast } from "@chakra-ui/toast";
+import { faCamera, faPen } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { AnimatePresence, motion, useAnimation } from "framer-motion";
+import { useContext, useLayoutEffect, useRef, useState } from "react";
+import { Context } from "../../context/StateProvider";
+import Input from "../Input";
+import SocialLogin from "./SocialLogin";
 
 const SignUp = () => {
   const toast = useToast();
@@ -28,11 +24,10 @@ const SignUp = () => {
     password: "",
     pic: "",
   });
-  const navigate = useNavigate();
-  let path = useLocation();
-  path = path.pathname.split("/");
 
-  const { isLogin, signUp, setIsLogin } = useContext(Context);
+  let formD = useRef(new FormData());
+
+  const { isLogin, signUp, setIsLogin, signUpOAuth } = useContext(Context);
 
   function handleAnimations() {
     if (isLogin) {
@@ -86,7 +81,7 @@ const SignUp = () => {
         },
       });
       animations[4].start({
-        x: 0,
+        y: 0,
         opacity: 1,
         display: "flex",
         transition: {
@@ -129,18 +124,24 @@ const SignUp = () => {
         return;
       }
 
-      let dataForm = new FormData();
-      dataForm.append("file", pics);
-      dataForm.append("upload_preset", REACT_APP_CLOUDINARY_UPLOAD_PRESET);
-      // dataForm.append("cloud_nmae", REACT_APP_CLOUDINARY_UPLOAD_PRESET);
+      formD.current.has("pic")
+        ? formD.current.set("pic", pics)
+        : formD.current.append("pic", pics);
 
-      let res = await fetch(CLOUDINARY_URL, {
-        method: "POST",
-        body: dataForm,
-      });
+      let reader = new FileReader();
+      reader.readAsDataURL(pics);
 
-      res = await res.json();
-      setFormData((prev) => ({ ...prev, pic: res.url }));
+      reader.onload = () => {
+        setFormData((prev) => ({ ...prev, pic: reader.result }));
+        // console.log(reader.result);
+      };
+
+      // let res = await fetch(CLOUDINARY_URL, {
+      //   method: "POST",
+      //   body: dataForm,
+      // });
+
+      // res = await res.json();
     } catch (error) {
       return toast({
         title: `${error.message}`,
@@ -171,6 +172,7 @@ const SignUp = () => {
     e.preventDefault();
     e.stopPropagation();
     setLoading(true);
+
     try {
       const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailPattern.test(formData.email)) {
@@ -199,8 +201,19 @@ const SignUp = () => {
         });
       }
 
-      let res = await signUp(formData);
+      const userObj = {
+        fullName: formData.fullName,
+        userName: formData.userName,
+        email: formData.email,
+        password: formData.password,
+        mobile_number: "",
+      };
 
+      formD.current.append("userObj", JSON.stringify(userObj));
+
+      let res = await signUp(formD);
+
+      formD.current = new FormData();
       if (res.success === true) {
         toast({
           title: `${res.message}`,
@@ -217,7 +230,6 @@ const SignUp = () => {
           pic: "",
         });
         setIsLogin(true);
-        return;
       } else {
         throw new Error(res.message);
       }
@@ -237,20 +249,14 @@ const SignUp = () => {
   // ////(formData);
 
   return (
-    <div className=" flex flex-col  py-3 w-full text-center justify-center items-center mt-6 pt-8 lg:pt-8">
+    <div className=" flex flex-col  py-3 w-full text-center justify-center items-center   lg:pt-8">
+      <div className=" w-full mt-32 xl:mt-12 ">
+        <AnimatePresence>
+          <SocialLogin handleClick={signUpOAuth} />
+        </AnimatePresence>
+      </div>
       <form
-        // initial={{ display: "none" }}
-        // animate={{
-        //   display: "flex",
-        // }}
-        // transition={{
-        //   duration: 0.8,
-        //   ease: "circInOut",
-        //   type: "spring",
-        //   delay: 1.5,
-        // }}
-        // layout
-        className=" flex flex-col justify-start items-center gap-y-5 sm:gap-y-4 w-full  "
+        className=" flex flex-col justify-start items-center gap-y-5 mt-8 sm:gap-y-4 w-full   "
         onSubmit={handleSubmit}
       >
         <motion.div
@@ -258,7 +264,7 @@ const SignUp = () => {
           animate={animations[0]}
           exit={{ translateX: "100%" }}
           // layout
-          className="profile_pic flex h-24 w-24 cursor-pointer rounded-full overflow-hidden "
+          className="profile_pic flex h-24 w-24 cursor-pointer relative"
         >
           <input
             type="file"
@@ -276,7 +282,21 @@ const SignUp = () => {
               <FontAwesomeIcon icon={faCamera} className=" text-neutral-800" />
             </label>
           ) : (
-            <img className="" src={formData.pic} />
+            <>
+              <label
+                htmlFor="dp_image"
+                className="  flex justify-center items-center cursor-pointer absolute -right-6 -top-3 z-[11] opacity-1 "
+              >
+                <FontAwesomeIcon
+                  icon={faPen}
+                  className=" h-5 w-5 text-neutral-800"
+                />
+              </label>
+              <img
+                className=" h-full w-full object-center object-cover rounded-full bg-neutral-700"
+                src={formData.pic}
+              />
+            </>
           )}
         </motion.div>
         <motion.div
@@ -342,7 +362,7 @@ const SignUp = () => {
       <motion.h6
         initial={{ y: "50%", opacity: 0 }}
         animate={animations[4]}
-        className="text-[18px]   xl:text-[18px] 2xl:text-[18px] text-center font-normal "
+        className="text-[18px] mt-3   xl:text-[18px] 2xl:text-[18px] text-center font-normal "
       >
         Join the party! Sign up and start chatting with awesome people!
       </motion.h6>

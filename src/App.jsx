@@ -1,9 +1,9 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import ChatBox from "./components/ChatBox";
+import ChatBox from "./components/chat/ChatBox";
 import Loader from "./components/Loader";
-import Login from "./components/Login";
-import SignUp from "./components/SignUp";
+import Login from "./components/auth/Login";
+import SignUp from "./components/auth/SignUp";
 import AuthScreens from "./screens/AuthScreens";
 import Home from "./screens/Home";
 import LoginAndSignup from "./screens/LoginAndSignup";

@@ -326,3 +326,21 @@ button {
     background: rgba(255, 255, 255, 0.5);
   }
 }
+
+/* #socials::before {
+  content: "";
+  position: absolute;
+  top: 21%;
+  height: 2px;
+  width: 70%;
+  background: #616161;
+}
+
+#socials::after {
+  content: "or";
+  position: relative;
+  top: 14%;
+  padding: 0px 5px;
+  color: #616161;
+  background-color: white;
+} */

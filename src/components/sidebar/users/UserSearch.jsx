@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion, useAnimation } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { headerOptions, serverUrl } from "../context/StateProvider";
+import { headerOptions, serverUrl } from "../../../context/StateProvider";
 
 const UserSearch = () => {
   const [show, setShow] = useState(false);

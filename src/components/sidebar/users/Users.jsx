@@ -9,7 +9,7 @@ import React, {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { Context } from "../context/StateProvider";
+import { Context } from "../../../context/StateProvider";
 import UsersContainer from "./UsersContainer";
 
 const Users = () => {

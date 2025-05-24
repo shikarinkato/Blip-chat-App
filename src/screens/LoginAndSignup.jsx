@@ -31,84 +31,88 @@ const LoginAndSignup = ({ Children }) => {
     if (width > 1280) {
       if (isLogin) {
         // setCurrMeasures({ height: 30, width: 30 });
-        handleAnimation(30, 30);
+        handleAnimation(35, 30);
       } else {
         // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(35, 40);
+        handleAnimation(40, 40);
       }
     } else if (width <= 1280 && width > 1024) {
       if (isLogin) {
-        handleAnimation(35, 30);
+        handleAnimation(40, 30);
       } else {
-        handleAnimation(43, 35);
+        handleAnimation(50, 35);
       }
     } else if (width <= 1024 && width > 915) {
       if (isLogin) {
-        let hght = height < 1000 ? 43 : 30;
-        handleAnimation(hght, 30);
+        let hght = height < 1000 ? 54 : 40;
+        let wght = height < 1000 ? 40 : 30;
+        handleAnimation(hght, wght);
       } else {
-        let hght = height < 1000 ? 60 : 45;
+        let hght = height < 1000 ? 70 : 55;
         handleAnimation(hght, 30);
       }
     } else if (width <= 915 && width > 800) {
       if (isLogin) {
-        let hght = height > 1200 ? 30 : 35;
+        let hght = height > 1200 ? 40 : 45;
         handleAnimation(hght, 30);
       } else {
-        let hght = height > 1200 ? 47 : 52;
+        let hght = height > 1200 ? 55 : 60;
         handleAnimation(hght, 28);
       }
     } else if (width <= 800 && width > 600) {
       if (isLogin) {
-        handleAnimation(40, 30);
+        handleAnimation(50, 30);
       } else {
-        handleAnimation(60, 30);
+        handleAnimation(70, 30);
       }
     } else if (width <= 600 && width > 414) {
       if (isLogin) {
-        handleAnimation(53, 45);
+        handleAnimation(70, 45);
       } else {
-        handleAnimation(85, 45);
+        let hght = height < 720 ? 80 : 101;
+        let wght = height < 720 ? 40 : 50;
+        handleAnimation(hght, wght);
       }
     } else if (width <= 414 && width >= 390) {
       if (isLogin) {
-        let hght = height < 750 ? 52 : 45;
+        let hght = height < 750 ? 69 : 60;
         handleAnimation(hght, 40);
       } else {
-        let hght = height < 750 ? 84 : height > 750 && height < 850 ? 75 : 70;
+        let hght = height < 750 ? 100 : height > 750 && height < 850 ? 85 : 81;
         handleAnimation(hght, 40);
       }
     } else if (width <= 375 && width > 360) {
       if (isLogin) {
-        let hght = height > 700 ? 50 : 58;
+        let hght = height > 700 ? (height > 800 ? 63 : 50) : 76;
         // setCurrMeasures({ height: 35, width: 45 });
         handleAnimation(hght, 43);
       } else {
-        let hght = height > 700 ? 75 : 98;
-        handleAnimation(hght, 40);
+        let hght = height > 700 ? 90 : 108;
+        let wght = height > 700 ? 40 : 45;
+        handleAnimation(hght, wght);
       }
     } else if (width <= 360 && width > 350) {
       if (isLogin) {
-        let hght = height > 700 ? 52 : 60;
+        let hght = height > 700 ? 68 : 80;
         handleAnimation(hght, 43);
       } else {
-        let hght = height > 700 ? 85 : 100;
+        let hght = height > 700 ? 98 : 116;
         handleAnimation(hght, 43);
       }
     } else if (width < 350 && width > 320) {
       if (isLogin) {
         // setCurrMeasures({ height: 35, width: 45 });
-        handleAnimation(45, 35);
+        handleAnimation(58, 35);
       } else {
         // setCurrMeasures({ height: 85, width: 100 });
-        handleAnimation(70, 35);
+        handleAnimation(83, 35);
       }
     } else {
       if (isLogin) {
         // setCurrMeasures({ height: 43, width: 63 });
-        handleAnimation(59, 40);
+        handleAnimation(80, 40);
       } else {
-        handleAnimation(98, 40);
+        handleAnimation(112, 40);
       }
     }
   }
@@ -191,15 +195,15 @@ const LoginAndSignup = ({ Children }) => {
                 Blip
               </h1>
 
-              <span className=" flex sm:hidden  text-[11px] sm:text-[12px] text-white leading-3 tracking-wide">
+              <span className=" flex sm:hidden  text-[14px] sm:text-[12px] text-white leading-3 tracking-wide">
                 Moments, Not Monologues.
               </span>
             </div>
           </div>
           <div
-            className={` px-4  md:px-6  pb-2 w-full   flex justify-center items-center flex-col absolute md:relative  ${
+            className={` px-4  md:px-6  pb-2 w-full   flex justify-center items-center flex-col  md:relative  ${
               isLogin ? "gap-y-4" : "gap-y-0"
-            } relative  h-4/6`}
+            }  h-4/6 `}
           >
             {
               <Suspense fallback={<Loader />}>

@@ -1,11 +1,12 @@
 import { useToast } from "@chakra-ui/toast";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useContext, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Context } from "../context/StateProvider";
-import Input from "./Input";
+import { Context } from "../../context/StateProvider";
+import Input from "../Input";
+import SocialLogin from "./SocialLogin";
 const Login = () => {
-  const { login } = useContext(Context);
+  const { login, loginOAuth } = useContext(Context);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const toast = useToast();
@@ -130,7 +131,12 @@ const Login = () => {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center w-full h-full gap-y-2">
+    <div className="flex flex-col justify-center items-center w-full h-full  ">
+      <AnimatePresence>
+        <div className=" w-full  mt-4">
+          <SocialLogin handleClick={loginOAuth} />
+        </div>
+      </AnimatePresence>
       <motion.form
         initial={{ opacity: 1, height: "55%", width: "100%" }}
         animate={{ opacity: 1, height: "100%", width: "100%" }}
@@ -138,7 +144,7 @@ const Login = () => {
         exit={{ opacity: 0, height: 0 }}
         // layout
         onSubmit={handleLogin}
-        className="  flex justify-center items-center flex-col gap-y-4 md:gap-y-5 lg:gap-y-7 xl:gap-y-5 2xl:gap-y-6   w-full"
+        className="  flex justify-center items-center flex-col gap-y-4 md:gap-y-5 lg:gap-y-7 xl:gap-y-5 2xl:gap-y-6   w-full mt-9"
       >
         <motion.div
           initial={{
@@ -277,7 +283,7 @@ const Login = () => {
             delay: 1.3,
           },
         }}
-        className=" text-[18px]   xsm:text-[16px] md:text-[18px] lg:text-[20px]  2xl:text-[18px] text-center font-normal   w-full"
+        className=" text-[18px] mt-4   xsm:text-[16px] md:text-[18px] lg:text-[20px]  2xl:text-[18px] text-center font-normal   w-full"
       >
         Welcome back! Log in and continue your chat adventures
       </motion.h6>

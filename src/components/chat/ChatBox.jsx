@@ -24,7 +24,7 @@ import React, {
   useState,
 } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Context, headerOptions, serverUrl } from "../context/StateProvider";
+import { Context, headerOptions, serverUrl } from "../../context/StateProvider";
 import ChatCard from "./ChatCard";
 
 const ChatBox = () => {
@@ -114,7 +114,7 @@ const ChatBox = () => {
   );
 
   const chatFetchingHelper = useCallback(() => {
-    (friends);
+    friends;
     if (friends.some((fr) => fr.friend_id === userId)) {
       if (hasMore.current === true) {
         fetchChats(userId, next.current)
@@ -358,7 +358,7 @@ const ChatBox = () => {
   useLayoutEffect(() => {
     let timer = null;
     socket.current?.on("friend-typing", (typngObj) => {
-      (typngObj);
+      typngObj;
       const chatDiv = chatRef.current;
       if (
         chatRef.current.scrollHeight - chatRef.current.scrollTop <=
@@ -371,7 +371,7 @@ const ChatBox = () => {
 
         timer = setTimeout(() => {
           chatRef.current.scrollTop = chatRef.current.scrollHeight;
-          ("Timer: ", chatRef.current.scrollHeight);
+          "Timer: ", chatRef.current.scrollHeight;
         }, 100);
       }
       if (userTyping === null) {

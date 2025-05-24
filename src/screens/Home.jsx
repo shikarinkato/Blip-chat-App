@@ -2,7 +2,7 @@ import { useToast } from "@chakra-ui/toast";
 import React, { useCallback, useContext, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import BG from "../components/BG.jsx";
-import SideBar from "../components/SideBar.jsx";
+import SideBar from "../components/sidebar/SideBar.jsx";
 import { Context, socketServer } from "../context/StateProvider";
 import { io, Socket } from "socket.io-client";
 import { motion } from "framer-motion";

@@ -3,7 +3,7 @@ import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Context } from "../context/StateProvider";
+import { Context } from "../../context/StateProvider";
 
 const SideBarHeader = () => {
   const { setIsAuthenticated, user } = useContext(Context);

@@ -2,7 +2,6 @@ import {
   faArrowRightFromBracket,
   faBell,
   faCircleQuestion,
-  faEllipsis,
   faGear,
   faLock,
   faPerson,
@@ -10,11 +9,11 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AnimatePresence, motion, useAnimation } from "framer-motion";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import SideBarHeader from "./SideBarHeader";
-import UserSearch from "./UserSearch";
-import Users from "./Users";
 import { useNavigate } from "react-router-dom";
-import MainDrawer from "./Drawers/MainDrawer";
+import MainDrawer from "../Drawers/MainDrawer";
+import SideBarHeader from "./SideBarHeader";
+import UserSearch from "./users/UserSearch";
+import Users from "./users/Users";
 
 const SideBar = ({ user }) => {
   const [opnStngs, setOpnStngs] = useState(false);
