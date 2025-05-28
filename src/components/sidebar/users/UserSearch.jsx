@@ -125,7 +125,7 @@ const UserSearch = () => {
             className=" bg-transparent w-full placeholder-stone-500 border-none outline-none text-white text-[15px] h-8 "
           />
         </div>
-        <span onClick={handleAdd}>
+        <span onClick={handleAdd} className=" cursor-pointer">
           <FontAwesomeIcon
             icon={faAdd}
             className="bg-[rgb(253,120,124)] h-[15px] w-[15px] rounded-full p-[0.4rem] mr-2 shadow-md shadow-[rgb(253,120,124)]"

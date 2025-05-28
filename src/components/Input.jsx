@@ -2,7 +2,15 @@ import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
 
-const Input = ({ type, placeholder, onChange, height, value }) => {
+const Input = ({
+  type,
+  placeholder,
+  onChange,
+  id,
+  value,
+  maxLength = 50,
+  classData = " h-full w-full bg-transparent  text-[16px] px-2 outline-none",
+}) => {
   const [show, setShow] = useState(false);
   const [input, setInput] = useState("");
   let timeRef = useRef(0);
@@ -16,8 +24,8 @@ const Input = ({ type, placeholder, onChange, height, value }) => {
     if (timeRef.current) {
       clearTimeout(timeRef.current);
     }
-    timeRef.current = setTimeout((e) => {
-      onChange(newInput);
+    timeRef.current = setTimeout(() => {
+      onChange(e, newInput);
     }, 500);
   }
 
@@ -31,8 +39,10 @@ const Input = ({ type, placeholder, onChange, height, value }) => {
   return (
     <div className=" relative w-full">
       <input
+        id={id}
         value={input}
-        className={` h-full w-full bg-transparent  text-[16px] px-2 outline-none`}
+        className={classData}
+        maxLength={maxLength}
         type={type == "password" ? (show ? "text" : type) : type}
         autoComplete={type === "password" ? "current-password" : ""}
         placeholder={placeholder}
@@ -40,7 +50,7 @@ const Input = ({ type, placeholder, onChange, height, value }) => {
       />
       <>
         {type == "password" ? (
-          <div className=" absolute right-2 2xl:right-1 top-0 flex justify-center items-center h-full">
+          <div className=" absolute right-3 2xl:right-1 top-0 flex justify-center items-center h-full ">
             {show ? (
               <FontAwesomeIcon
                 onClick={() => {

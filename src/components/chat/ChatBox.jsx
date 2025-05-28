@@ -26,6 +26,8 @@ import React, {
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Context, headerOptions, serverUrl } from "../../context/StateProvider";
 import ChatCard from "./ChatCard";
+import EmojiPicker from "emoji-picker-react";
+import { time } from "framer-motion/client";
 
 const ChatBox = () => {
   const { userId } = useParams();
@@ -54,11 +56,13 @@ const ChatBox = () => {
   const [showfilesDragger, setShowFilesDragger] = useState(false);
   const [docsModal, setDocsModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [opnEmji, setOpnEmji] = useState(false);
   const [userTyping, setUserTyping] = useState(null);
 
   const token = JSON.parse(localStorage.getItem("token"));
 
   const animations = [
+    useAnimation(),
     useAnimation(),
     useAnimation(),
     useAnimation(),
@@ -79,6 +83,7 @@ const ChatBox = () => {
   const chatParent = useRef(null);
   const chatPrvsHght = useRef(0);
   const typngIndctr = useRef(null);
+  const tmrRef = useRef(null);
 
   let resFiles = [];
 
@@ -94,6 +99,8 @@ const ChatBox = () => {
     (e) => {
       e.preventDefault();
       e.stopPropagation();
+      setOpnEmji(false);
+
       if (timer.current) {
         clearTimeout(timer.current);
       }
@@ -172,6 +179,7 @@ const ChatBox = () => {
 
       const files = [];
       const tempDate = new Date();
+
       isFiles &&
         message.files?.forEach((fl, idx) => {
           files.push({
@@ -199,12 +207,14 @@ const ChatBox = () => {
         };
       }
 
+
       if (message.files?.length <= 0) {
         socket.current.emit("send-message", room.current, msgObj);
       }
 
       setShowFilesDragger(false);
       setDocsModal(false);
+      setOpnEmji(false);
       setMessage({ text: "", files: [] });
       inputRef.current.value = "";
       inputRef.current.focus();
@@ -812,14 +822,28 @@ const ChatBox = () => {
 
   let orgDay;
 
-  let userType = useCallback(
+  // let userType = useCallback(
+  //   (e) => {
+  //     // e.stopPropagation();
+  //     // chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  //     // setUserTyping(!userTyping);
+  //   },
+  //   [chatRef, userTyping]
+  // );
+  const slsctEmji = useCallback(
     (e) => {
-      // e.stopPropagation();
-      // chatRef.current.scrollTop = chatRef.current.scrollHeight;
-      // setUserTyping(!userTyping);
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
+      setMessage((prev) => ({ ...prev, text: prev.text + e.emoji }));
+      inputRef.current.value += e.emoji;
     },
-    [chatRef, userTyping]
+    [inputRef, message.text]
   );
+
+  const emjiOpnr = () => {
+    setOpnEmji(!opnEmji);
+  };
 
   return (
     <div className=" text-white w-full h-full flex justify-center  flex-col relative z-[99] bg-[#1f1f22] sm:bg-transparent overflow-hidden">
@@ -972,7 +996,10 @@ const ChatBox = () => {
           </button>
         </motion.div>
       </header>
-      <div className=" w-full h-[82%] sm:h-[85%] lg:h-[78%] " ref={chatParent}>
+      <div
+        className=" w-full h-[82%] sm:h-[85%] lg:h-[78%] xl:h-[80%] "
+        ref={chatParent}
+      >
         <motion.div
           initial={{ y: 0 }}
           animate={animations[4]}
@@ -1164,9 +1191,18 @@ const ChatBox = () => {
                 icon={faClose}
               />
             </motion.div>
-            <span onClick={userType}>
-              <FontAwesomeIcon icon={faSmile} className=" text-stone-500" />
-            </span>
+            <div className=" absolute -top-1/2 -translate-y-[100%] left-0">
+              <EmojiPicker
+                open={opnEmji ? true : false}
+                onEmojiClick={slsctEmji}
+                className=""
+              />
+            </div>
+            <FontAwesomeIcon
+              onClick={emjiOpnr}
+              icon={faSmile}
+              className=" text-stone-500 cursor-pointer"
+            />
             <input
               ref={inputRef}
               className="h-[40px] w-full bg-transparent  text-[16px] px-2 outline-none"

@@ -327,6 +327,11 @@ button {
   }
 }
 
+#rsndOtpBtn:disabled{
+  background: gray;
+  cursor: not-allowed;
+}
+
 /* #socials::before {
   content: "";
   position: absolute;

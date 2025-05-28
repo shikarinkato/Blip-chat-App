@@ -2,7 +2,7 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
 import AccountInfo from "./AccountInfo";
-import Help from "./Help";
+import HelpAndFeedback from "./Help";
 import Privacy from "./Privacy";
 
 const MainDrawer = ({ childID, onclick }) => {
@@ -12,7 +12,7 @@ const MainDrawer = ({ childID, onclick }) => {
     case 2:
       return <DrawerWrapper onclick={onclick} child={<Privacy />} />;
     case 3:
-      return <DrawerWrapper onclick={onclick} child={<Help />} />;
+      return <DrawerWrapper onclick={onclick} child={<HelpAndFeedback />} />;
 
     default:
       return (

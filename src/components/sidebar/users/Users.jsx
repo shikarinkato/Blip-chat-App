@@ -136,16 +136,14 @@ const Users = () => {
 
       // ////("Done");
     };
-    if (friends?.length > 0) {
-      fetchProfiles()
-        .then(() => {
-          setIsFetched(true);
-          // ////("Fetched");
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    }
+    fetchProfiles()
+      .then(() => {
+        setIsFetched(true);
+        // ////("Fetched");
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }, [getFriendsProfiles, onlineUsers?.length, friends?.length]);
 
   useLayoutEffect(() => {
@@ -172,6 +170,8 @@ const Users = () => {
   function lstnOldMsgs(msgs) {
     setBackgroundMsgs((prev) => [...prev, msgs]);
   }
+
+  (isFetched);
 
   if (!isFetched) {
     return (

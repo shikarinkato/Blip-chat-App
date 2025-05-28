@@ -64,7 +64,7 @@ const SideBar = ({ user }) => {
     hidden: {},
     show: {
       transition: {
-        delayChildren: 2,
+        delayChildren: 1,
         staggerChildren: 0.1,
         ease: "easeInOut",
       },
@@ -82,7 +82,7 @@ const SideBar = ({ user }) => {
   let sideBarItems = [
     { name: "Account", icon: faPerson, id: 1 },
     { name: "Privacy and Security", icon: faLock, id: 2 },
-    { name: "Help", icon: faCircleQuestion, id: 3 },
+    { name: "Help & Feedback", icon: faCircleQuestion, id: 3 },
     { name: "LogOut", icon: faArrowRightFromBracket, id: 4 },
   ];
 

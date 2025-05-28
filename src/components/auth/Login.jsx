@@ -1,7 +1,7 @@
 import { useToast } from "@chakra-ui/toast";
 import { AnimatePresence, motion } from "framer-motion";
-import { useContext, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Context } from "../../context/StateProvider";
 import Input from "../Input";
 import SocialLogin from "./SocialLogin";
@@ -11,10 +11,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-  // let animations = [useAnimation(), useAnimation(), useAnimation()];
-
-  let path = useLocation();
-  path = path.pathname.split("/");
+  const navigate = useNavigate();
+  const [query] = useSearchParams();
+  const scs = query.get("success");
+  const typ = query.get("type");
+  const tkn = query.get("token");
+  const isUsr = query.get("isUser");
 
   // function handleAnimations() {
   //   // if (isLogin) {
@@ -129,6 +131,76 @@ const Login = () => {
       setLoading(false);
     }
   }
+  // (path);
+
+  useEffect(() => {
+    if (scs == "true") {
+      if (typ === "signup") {
+        toast({
+          title: "Registered Successfully!",
+          duration: 2500,
+          status: "success",
+          isClosable: true,
+          position: "top",
+        });
+        return;
+      }
+      toast({
+        title: "Welcome Back",
+        duration: 2500,
+        status: "success",
+        isClosable: true,
+        position: "top",
+      });
+      localStorage.setItem("token", JSON.stringify(tkn));
+      navigate("/");
+      return;
+    } else {
+      if (scs) {
+        if (typ === "signup") {
+          Boolean(isUsr);
+          if (isUsr) {
+            toast({
+              title: "User Already Regsitered",
+              duration: 2500,
+              status: "info",
+              isClosable: true,
+              position: "top",
+            });
+            return;
+          }
+          toast({
+            title: "Something went wrong wait for some time",
+            duration: 2500,
+            status: "error",
+            isClosable: true,
+            position: "top-left",
+          });
+          toast({
+            title: "Wait for some time",
+            duration: 2500,
+            status: "error",
+            isClosable: true,
+            position: "top",
+          });
+          toast({
+            title: "Otherwise SignUp Manually",
+            duration: 2500,
+            status: "error",
+            isClosable: true,
+            position: "top-right",
+          });
+          return;
+        }
+        toast({
+          title: "Something went wrong or May be you're not on Blip ",
+          duration: 2500,
+          status: "error",
+          isClosable: true,
+        });
+      }
+    }
+  }, []);
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-full  ">
@@ -177,10 +249,10 @@ const Login = () => {
             value={formData.email}
             type={"text"}
             placeholder="email or username,mobilenumber"
-            onChange={(e) => {
+            onChange={(e, data) => {
               setFormData((prev) => ({
                 ...prev,
-                email: e,
+                email: data,
               }));
             }}
           />
@@ -217,10 +289,10 @@ const Login = () => {
             type={"password"}
             placeholder="password"
             height="30px"
-            onChange={(e) => {
+            onChange={(e, data) => {
               setFormData((prev) => ({
                 ...prev,
-                password: e,
+                password: data,
               }));
             }}
           />

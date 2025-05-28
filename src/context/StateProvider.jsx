@@ -1,14 +1,6 @@
 import { useToast } from "@chakra-ui/toast";
-import React, {
-  createContext,
-  useRef,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-} from "react";
+import { createContext, useCallback, useMemo, useRef, useState } from "react";
 export let Context = createContext();
-import { io } from "socket.io-client";
 
 //extrcting the token
 let token = JSON.parse(localStorage.getItem("token"));
@@ -26,13 +18,14 @@ export let headerOptions = {
 };
 
 function StateProvider({ children }) {
-  let toast = useToast();
   const [isLogin, setIsLogin] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [friends, setFriends] = useState([]);
   const [user, setUser] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [backgroundMsgs, setBackgroundMsgs] = useState([]);
+
+  let toast = useToast();
 
   let socket = useRef(null);
   let isReconnect = useRef(false);
@@ -93,23 +86,7 @@ function StateProvider({ children }) {
 
   const loginOAuth = async (type) => {
     try {
-      // alert(type);
-      // let res = await fetch(`${serverUrl}/user/oauth/login?&type=${type}`, {
-      //   method: "PUT",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email_Usrnme_mobile: email, password }),
-      // });
-
       window.location.href = `${serverUrl}/user/oauth/login?type=${type}`;
-
-      // let data = await res.json();
-
-      // if (data.success === true) {
-      // localStorage.setItem("token", JSON.stringify(data.token));
-      // setIsAuthenticated(true);
-      // } else {
-      //   throw new Error(data.message);
-      // }
     } catch (error) {
       return toast({
         title: `${error.message}`,
@@ -146,11 +123,11 @@ function StateProvider({ children }) {
 
       window.location.href = `${serverUrl}/user/oauth/register?type=${type}`;
 
-      // console.log(res);
+      // (res);
       // window.location.href = res;
 
       // if (data.success === true) {
-      //   console.log(data);
+      //   (data);
       //   // return data;
       // } else {
       //   throw new Error(data.message);
@@ -409,6 +386,7 @@ function StateProvider({ children }) {
         setOnlineUsers: value.setOnlineUsers,
         setFriends: value.setFriends,
         setBackgroundMsgs: value.setBackgroundMsgs,
+        setUser: value.setUser,
         login,
         loginOAuth,
         signUp,

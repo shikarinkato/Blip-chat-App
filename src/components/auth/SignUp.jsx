@@ -133,7 +133,7 @@ const SignUp = () => {
 
       reader.onload = () => {
         setFormData((prev) => ({ ...prev, pic: reader.result }));
-        // console.log(reader.result);
+        // (reader.result);
       };
 
       // let res = await fetch(CLOUDINARY_URL, {
@@ -155,17 +155,17 @@ const SignUp = () => {
     }
   }
 
-  async function changeUsername(e) {
-    setFormData((prev) => ({ ...prev, userName: e }));
+  async function changeUsername(e, data) {
+    setFormData((prev) => ({ ...prev, userName: data }));
   }
-  async function changefullName(e) {
-    setFormData((prev) => ({ ...prev, fullName: e }));
+  async function changefullName(e, data) {
+    setFormData((prev) => ({ ...prev, fullName: data }));
   }
-  async function changePassword(e) {
-    setFormData((prev) => ({ ...prev, password: e }));
+  async function changePassword(e, data) {
+    setFormData((prev) => ({ ...prev, password: data }));
   }
-  async function changeEmail(e) {
-    setFormData((prev) => ({ ...prev, email: e }));
+  async function changeEmail(e, data) {
+    setFormData((prev) => ({ ...prev, email: data }));
   }
 
   async function handleSubmit(e) {

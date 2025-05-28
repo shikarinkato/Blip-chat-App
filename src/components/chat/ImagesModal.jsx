@@ -5,14 +5,7 @@ import {
 import { faClose } from "@fortawesome/free-solid-svg-icons/faClose";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion, useAnimation } from "framer-motion";
-import { input } from "framer-motion/client";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 const ImagesModal = ({ hndlCls, files }) => {
   const animations = [];
   const [active, setActive] = useState(0);

@@ -46,12 +46,12 @@ const Home = () => {
   //it'll shows the error occurred in socket connection and navigate to /auth
   const handleSocketError = (error) => {
     toast({
-      title: error.name,
+      title: "Kindly Login First",
       position: "bottom",
       status: "error",
       duration: 3000,
       isClosable: true,
-      description: error.message,
+      // description: error.message,
     });
     if (
       error.name === "JsonWebTokenError" ||
@@ -191,7 +191,7 @@ const Home = () => {
         transition={{ duration: 0.5, delay: 4, ease: "easeOut" }}
         className=" flex justify-center items-center absolute h-dvh w-dvw bg-[#1F1F22] z-[999]"
       >
-        <div className="flex flex-col items-center justify-center  text-white shadow-lg drop-shadow-lg drop-shadow-purpleGradient">
+        <div className="flex flex-col items-center justify-center  text-white relative   ">
           <div>
             <FontAwesomeIcon
               icon={faMessage}
